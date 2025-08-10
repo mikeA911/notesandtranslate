@@ -59,7 +59,7 @@
     <div id="startupScreen" class="startup-overlay">
       <div class="startup-content">
         <div class="image-container" id="imageContainer">
-          <img id="currentImage" src="ikeJ.png" alt="Voice Notes Translator" class="startup-image" />
+          <img id="currentImage" src="https://wehcgfyykmqhcuzjykio.supabase.co/storage/v1/object/public/assets/ikeJournal.png" alt="Voice Notes Translator" class="startup-image" />
         </div>
         <div class="swipe-instructions">
           <p data-i18n="startup.swipeInstructions">Swipe left/right or up/down to navigate • Swipe left for about • Click to record</p>
@@ -446,6 +446,14 @@
       }
     </script>
     
+    <!-- Main Application Script -->
+    <script type="module" src="./index.tsx" onerror="console.error('[DEBUG] Failed to load index.tsx:', event)"></script>
+    <script>
+      console.log('[DEBUG] JavaScript execution works - about to load index.tsx module...');
+      console.log('[DEBUG] Current URL:', window.location.href);
+      console.log('[DEBUG] Module support:', 'noModule' in HTMLScriptElement.prototype);
+    </script>
+    
     <!-- Credit System Scripts -->
     <script type="module">
       // Import and initialize credit system
@@ -480,6 +488,5 @@
       });
     </script>
     
-  <script type="module" src="/index.tsx"></script>
 </body>
 </html>

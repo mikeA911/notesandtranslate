@@ -4,109 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Voice Notes Translator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;700&family=Noto+Sans+Lao:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Khmer', 'Noto Sans Lao', Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
+            background: #fbfdff;
+            color: #072028;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        h1 { color: #2c3e50; }
-        h2 { color: #34495e; }
-        .feature-section {
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: #ffffff;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 10px rgba(3,40,46,0.06);
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
             background: #f8f9fa;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #51606a;
+            transition: all 0.3s ease;
+            border-right: 1px solid #e9ecef;
         }
-        ul, ol {
+
+        .tab-btn:last-child {
+            border-right: none;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #0b7285;
+            font-weight: 600;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        /* Content Container */
+        .content-container {
+            background: #ffffff;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 8px 20px rgba(3,40,46,0.06);
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Typography */
+        h1 { 
+            color: #2c3e50; 
+            margin: 0 0 15px 0;
+            font-size: 1.8rem;
+        }
+        
+        h3 { 
+            color: #0b7285; 
+            margin: 25px 0 10px 0; 
+            font-size: 1.1rem;
+        }
+
+        .subtitle {
+            color: #51606a;
+            font-size: 1rem;
+            margin: 0 0 25px 0;
+            line-height: 1.5;
+        }
+
+        ul {
             padding-left: 20px;
+            margin: 15px 0;
+            color: #51606a;
         }
+
         li {
             margin: 8px 0;
         }
-        .highlight {
-            font-weight: bold;
-            color: #2980b9;
+
+        /* Language-specific fonts */
+        .khmer-content {
+            font-family: 'Noto Sans Khmer', 'Khmer OS', Arial, serif;
+        }
+
+        .lao-content {
+            font-family: 'Noto Sans Lao', 'Phetsarath OT', Arial, sans-serif;
+        }
+
+        .english-content {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #51606a;
         }
     </style>
-    <script type="module">
-        import { i18n } from './src/i18n-vanilla.js';
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize i18n
-            i18n.init();
-            
-            // Update content based on current language
-            updateContent();
-            
-            // Listen for language changes
-            window.addEventListener('languageChanged', () => {
-                updateContent();
-            });
-        });
-        
-        function updateContent() {
-            const lang = i18n.getCurrentLanguage();
-            
-            document.querySelector('h1').textContent = i18n.t('about.mainTitle');
-            document.querySelector('.subtitle').textContent = i18n.t('about.subtitle');
-            
-            // Update all section titles and features
-            const sections = ['advancedAI', 'quickSessions', 'languageSupport', 'smartFeatures', 'privacy', 'perfectFor'];
-            
-            sections.forEach(section => {
-                const titleElement = document.querySelector(`[data-section="${section}"] h2`);
-                const featuresList = document.querySelector(`[data-section="${section}"] ul`);
-                
-                if (titleElement) {
-                    titleElement.textContent = i18n.t(`about.sections.${section}.title`);
-                }
-                
-                if (featuresList) {
-                    // Get features array by accessing each feature individually
-                    const featureElements = [];
-                    let i = 0;
-                    while (true) {
-                        try {
-                            const feature = i18n.t(`about.sections.${section}.features.${i}`);
-                            if (feature === `about.sections.${section}.features.${i}`) break; // No more features
-                            featureElements.push(`<li>${feature}</li>`);
-                            i++;
-                        } catch (e) {
-                            break;
-                        }
-                    }
-                    if (featureElements.length > 0) {
-                        featuresList.innerHTML = featureElements.join('');
-                    }
-                }
-            });
-            
-            document.querySelector('footer p').textContent = i18n.t('about.footer');
-        }
-    </script>
 </head>
 <body>
-    <header>
-        <h1>Professional-Grade Translation That Preserves Meaning</h1>
-        <p class="subtitle">Stop struggling with robotic translations that miss the point. Get natural, contextually-aware translations powered by advanced AI technology - perfect for important conversations and professional communications.</p>
-    </header>
-    
-    <main>
-        <section class="feature-section" data-section="advancedAI">
-            <h2>Advanced AI Technology</h2>
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('english')">English</button>
+        <button class="tab-btn" onclick="showTab('khmer')">ខ្មែរ</button>
+        <button class="tab-btn" onclick="showTab('lao')">ລາວ</button>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+        <!-- English Content -->
+        <div id="english-content" class="tab-content english-content active">
+            <h1>Professional-Grade Translation That Preserves Meaning</h1>
+            <p class="subtitle">Stop struggling with robotic translations that miss the point. Get natural, contextually-aware translations powered by advanced AI technology - perfect for important conversations and professional communications.</p>
+
+            <h3>Advanced AI Technology</h3>
             <ul>
                 <li>Gemini 2.5 powered - State-of-the-art AI for superior accuracy</li>
                 <li>Context understanding - Grasps situation and provides appropriate translations</li>
                 <li>Natural output - Translations that sound human, not machine-generated</li>
                 <li>Continuous learning - Improves with usage for better results</li>
             </ul>
-        </section>
 
-        <section class="feature-section" data-section="quickSessions">
-            <h2>Quick Translation Sessions</h2>
+            <h3>Quick Translation Sessions</h3>
             <ul>
                 <li>3-minute recording limit - Perfect for quick conversations and phrases</li>
                 <li>Multi-speaker pickup - Captures both sides of conversations</li>
@@ -114,39 +153,31 @@
                 <li>Voice enhancement - Clarifies all voices in the conversation</li>
                 <li>Real-time processing - Fast translations for immediate communication</li>
             </ul>
-        </section>
 
-        <section class="feature-section" data-section="languageSupport">
-            <h2>Comprehensive Language Support</h2>
+            <h3>Comprehensive Language Support</h3>
             <ul>
                 <li>50+ languages - Cover major world languages and dialects</li>
                 <li>Technical vocabulary - Handles business, medical, and specialized terms</li>
                 <li>Cultural adaptation - Understands cultural context for appropriate communication</li>
                 <li>Real-time processing - Fast, responsive translations when you need them</li>
             </ul>
-        </section>
 
-        <section class="feature-section" data-section="smartFeatures">
-            <h2>Smart Features</h2>
+            <h3>Smart Features</h3>
             <ul>
                 <li>Text and voice input - Type or speak, your choice</li>
                 <li>Photo translation - Translate text in images and signs</li>
                 <li>Conversation mode - Back-and-forth dialogue support</li>
                 <li>Offline pronunciation - Access phonetic guides without internet</li>
             </ul>
-        </section>
 
-        <section class="feature-section" data-section="privacy">
-            <h2>Privacy & Security</h2>
+            <h3>Privacy &amp; Security</h3>
             <ul>
                 <li>No conversation storage - Translations processed but not saved by us</li>
                 <li>Secure processing - Advanced encryption for all communications</li>
                 <li>GDPR compliant - Meets international privacy standards</li>
             </ul>
-        </section>
 
-        <section class="feature-section" data-section="perfectFor">
-            <h2>Perfect For:</h2>
+            <h3>Perfect For:</h3>
             <ul>
                 <li>Tourist conversations - Restaurant orders, hotel check-ins, shopping assistance</li>
                 <li>Quick directions - Getting help with navigation and local information</li>
@@ -154,11 +185,139 @@
                 <li>Travel emergencies - Fast communication in urgent situations</li>
                 <li>Language practice - Short practice sessions with native speakers</li>
             </ul>
-        </section>
-    </main>
-    
+        </div>
+
+        <!-- Khmer Content -->
+        <div id="khmer-content" class="tab-content khmer-content">
+            <h1>ការបកប្រែថ្នាក់វិជ្ជាជីវៈ ដែលរក្សាអត្ថន័យ</h1>
+            <p class="subtitle">បញ្ឈប់ការតស៊ូជាមួយការបកប្រែដូចម៉ាស៊ីនដែលខកខានចំណុចសំខាន់។ ទទួលបានការបកប្រែដែលមានភាពធម្មជាតិ និងយល់ពីបរិបទ ដោយបច្ចេកវិទ្យា AI កម្រិតខ្ពស់ — សមស្របសម្រាប់សន្ទនាសំខាន់ៗ និងការទំនាក់ទំនងវិជ្ជាជីវៈ។</p>
+
+            <h3>បច្ចេកវិទ្យា AI ជាន់ខ្ពស់</h3>
+            <ul>
+                <li>គាំទ្រ​ដោយ Gemini 2.5 — បច្ចេកវិទ្យា AI កម្រិតខ្ពស់ សម្រាប់ភាពត្រឹមត្រូវល្អបំផុត</li>
+                <li>ការយល់ឃើញបរិបទ — យល់ដល់ស្ថានភាព និងផ្តល់ការបកប្រែដែលសមស្រប</li>
+                <li>លទ្ធផលដូចមនុស្ស — ការបកប្រែមើលទៅដូចមនុស្ស មិនមែនម៉ាស៊ីនបង្កើត</li>
+                <li>ការរៀនបន្ត — កាន់តែប្រសើរជាមួយការប្រើប្រាស់</li>
+            </ul>
+
+            <h3>សម័យបកប្រែកាត់ពេល</h3>
+            <ul>
+                <li>កំណត់ការថត ៣ នាទី — សមស្របសម្រាប់សន្ទនាស្តីខ្លី និងប្រយោគខ្លី</li>
+                <li>ចាប់សំឡេងពីអ្នកនិយាយច្រើន — គ្របដណ្តប់ទាំងពីរក្រោយនៃសន្ទនា</li>
+                <li>សមាសធាតុនៅផ្នែកទេសចរ — ស័ក្តិសមសម្រាប់ការកម្មង់ម្ហូប ទិសដៅ និងការទិញសម្ភារៈ</li>
+                <li>ការកែលម្អសម្លេង — ធ្វើឲ្យសម្លេងគ្រប់ផ្នែកមានភាពច្បាស់</li>
+                <li>ដំណើរការពេលវេលាពិត — បកប្រែឆាប់សម្រាប់ការទំនាក់ទំនងភ្លាមៗ</li>
+            </ul>
+
+            <h3>គាំទ្រភាសាចម្រុះ</h3>
+            <ul>
+                <li>ជាង ៥០ ភាសា — គ្របដណ្តប់ភាសាសំខាន់ៗនៅលើពិភព និងលក្ខណៈភាសាក្នុងតំបន់</li>
+                <li>ពាក្យបច្ចេកទេស — គ្របដណ្តប់ពាក្យក្នុងអាជីវកម្ម វេជ្ជសាស្ត្រ និងវិស័យជំនាញ</li>
+                <li>ការសម្របសម្រួលទៅតាមវប្បធម៌ — យល់ពីបរិបទដើម្បីការទំនាក់ទំនងសមស្រប</li>
+                <li>ដំណើរការពេលវេលាពិត — បកប្រែឆាប់ និងឆ្លើយតបពេលត្រូវការ</li>
+            </ul>
+
+            <h3>មុខងារ​ឆ្លាត</h3>
+            <ul>
+                <li>បញ្ចូលអត្ថបទ និងសម្លេង — វិធីសាស្ត្រដើម្បីវាយឬនិយាយ</li>
+                <li>បកប្រែពីរូបភាព — បកប្រែអត្ថបទនៅលើរូបភាព និងសញ្ញា</li>
+                <li>របៀបសន្ទនា — គាំទ្រការឆ្លើយតបពីរផ្នែក</li>
+                <li>អានវិធីអក្សរប៉ុន្មានក្រៅបណ្ដាញ — ចូលដល់មគ្គុទេសក៍អក្សរសម្រាប់អានដោយមិនចាំបាច់អ៊ីនធឺណិត</li>
+            </ul>
+
+            <h3>ភាពឯកជន និងសុវត្ថិភាព</h3>
+            <ul>
+                <li>មិនរក្សាទុកសន្ទនា — ការបកប្រែត្រូវបានដំណើរការ ប៉ុន្តាមិនបានរក្សាទុកដោយយើង</li>
+                <li>ដំណើរការមានសុវត្ថិភាព — ការ​អ៊ិនគ្រីប​កម្រិត​ខ្ពស់​សម្រាប់​ការទំនាក់ទំនងទាំងអស់</li>
+                <li>ស្របតាម GDPR — បំពេញស្តង់ដារសុវត្ថិភាពព័ត៌មានផ្ទាល់ខ្លួនអន្ដរជាតិ</li>
+            </ul>
+
+            <h3>សមស្របសម្រាប់:</h3>
+            <ul>
+                <li>សន្ទនាអ្នកទេសចរ — កម្មង់ម្ហូប, ការត្រួតពិនិត្យចូលសណ្ឋាគារ, ជំនួយក្នុងការជ្រើសទិញ</li>
+                <li>ទិសដៅរហ័ស — ជំនួយក្នុងការរុករក និងព័ត៌មានក្នុងតំបន់</li>
+                <li>ការផ្លាស់ប្តូរវប្បធម៌ — ការទាក់ទងខ្លីជាមួយប្រជាជនក្នុងតំបន់ និងបុគ្គលិកសេវាកម្ម</li>
+                <li>ករណីអាសន្នក្នុងការធ្វើដំណើរ — ការទំនាក់ទំនងលឿនក្នុងស្ថានភាពបន្ទាន់</li>
+                <li>ការអនុវត្តភាសា — សម័យអនុវត្តខ្លីជាមួយអ្នកនិយាយដើម</li>
+            </ul>
+        </div>
+
+        <!-- Lao Content -->
+        <div id="lao-content" class="tab-content lao-content">
+            <h1>ການແປພາສາລະດັບມືອາຊີບ ທີ່ຮັກສາຄວາມໝາຍ</h1>
+            <p class="subtitle">ຢຸດການຕໍ່ສູ້ກັບການແປພາສາເຄື່ອງຈັກທີ່ບໍ່ເຂົ້າໃຈຄວາມໝາຍ. ຮັບການແປພາສາທີ່ເປັນທໍາມະຊາດ ແລະ ເຂົ້າໃຈບໍລິບົດ ດ້ວຍເທັກໂນໂລຢີ AI ທັນສະໄໝ — ພໍ່ສົມສຳລັບການສົນທະນາສຳຄັນແລະການຕິດຕໍ່ທາງວິຊາຊີບ.</p>
+
+            <h3>ເທັກໂນໂລຢີ AI ທັນສະໄໝ</h3>
+            <ul>
+                <li>Gemini 2.5 powered - AI ລະດັບສູງ ສໍາລັບຄວາມແມ່ນຢໍ</li>
+                <li>ການເຂົ້າໃຈບໍລິບົດ - ເຂົ້າໃຈສະຖານການ ແລະມອບການແປທີ່ເໝາະສົມ</li>
+                <li>ຜົນໄດ້ຮັບທຳມະຊາດ - ແປທີ່ມີສຽງເຫັນເປັນມະນຸດ ບໍ່ແມ່ນເຄື່ອງຈັກ</li>
+                <li>ການຮຽນຮູ້ຢ່າງຕໍ່ເນື່ອງ - ພັດທະນາດີຂຶ້ນຈາກການນຳໃຊ້</li>
+            </ul>
+
+            <h3>ການແປອັນໄວ</h3>
+            <ul>
+                <li>ຈຳກັດການບັນທຶກ 3 ນາທີ - ສໍາລັບສນທະນາສັ້ນ ແລະ ປະໂຫຍກ</li>
+                <li>ຈັບສຽງຈາກຫຼາຍຜູ້ເວົ້າ - ຄຸ້ມຄອງທັງສອງຝ່າຍໃນການສນທະນາ</li>
+                <li>ສຳລັບນັກທ່ອງທ່ຽວ - ເໝາະສົມກັບການສັ່ງອາຫານ, ຄຳແນະນຳທາງ, ການຊື້ເຄື່ອງ</li>
+                <li>ການປັບປຸງສຽງ - ເຮັດໃຫ້ສຽງທຸກຄົນຊັດເຈນ</li>
+                <li>ການດຳເນີນງານແບບເວລາຈິງ - ແປໄວສຳລັບການສື່ສານທັນທີ</li>
+            </ul>
+
+            <h3>ການສະຫນັບສະຫນູນພາສາຢ່າງຄົບຖ້ວນ</h3>
+            <ul>
+                <li>ຫຼາຍກວ່າ 50 ພາສາ - ຄຸ້ມຄອງພາສາຫຼັກຂອງໂລກ ແລະ ພາສາທ້ອງຖິ່ນ</li>
+                <li>ຄຳສັບທາງເຕັກນິກ - ຈັດການກັບຄຳສັບທາງທຸລະກິດ, ການແພດ ແລະ ຄຳສັບພິເສດ</li>
+                <li>ການປັບຕົວຕາມວັດທະນະທຳ - ເຂົ້າໃຈບໍລິບົດວັດທະນະທຳເພື່ອການສື່ສານທີ່ເໝາະສົມ</li>
+                <li>ການດຳເນີນງານແບບເວລາຈິງ - ແປໄວ ແລະ ຕອບສະໜອງໄວ ໃນເວລາທີ່ຕ້ອງການ</li>
+            </ul>
+
+            <h3>ຄຸນສົມບັດອັດສະລິຍະ</h3>
+            <ul>
+                <li>ການປ້ອນຂໍ້ຄວາມ ແລະ ສຽງ - ພິມຫຼືເວົ້າ, ເລືອກຕາມຕ້ອງການ</li>
+                <li>ການແປຈາກຮູບພາບ - ແປຂໍ້ຄວາມໃນຮູບພາບ ແລະ ປ້າຍ</li>
+                <li>ໂໝດການສົນທະນາ - ສະໜັບສະໜູນການໂຕ້ແຍ້ງສອງທາງ</li>
+                <li>ການອ່ານອອກສຽງແບບອອບໄລນ໌ - ເຂົ້າເຖິງຄູ່ມືການອອກສຽງໂດຍບໍ່ຕ້ອງໄດ້ອິນເຕີເນັດ</li>
+            </ul>
+
+            <h3>ຄວາມເປັນສ່ວນຕົວ ແລະ ຄວາມປອດໄພ</h3>
+            <ul>
+                <li>ບໍ່ມີການເກັບຮັກສາການສົນທະນາ - ການແປຖືກດຳເນີນການ ແຕ່ບໍ່ໄດ້ຖືກບັນທຶກໂດຍພວກເຮົາ</li>
+                <li>ການດຳເນີນງານທີ່ປອດໄພ - ການເຂົ້າລະຫັດລະດັບສູງສຳລັບການສື່ສານທັງໝົດ</li>
+                <li>ສອດຄ່ອງກັບ GDPR - ປະຕິບັດຕາມມາດຕະຖານຄວາມເປັນສ່ວນຕົວສາກົນ</li>
+            </ul>
+
+            <h3>ເໝາະສົມສຳລັບ:</h3>
+            <ul>
+                <li>ການສົນທະນາຂອງນັກທ່ອງທ່ຽວ - ການສັ່ງອາຫານ, ການເຊັກອິນໂຮງແຮມ, ການຊ່ວຍເຫຼືອໃນການຊື້ເຄື່ອງ</li>
+                <li>ການຖາມທາງໄວ - ການຊ່ວຍເຫຼືອໃນການນໍາທາງ ແລະ ຂໍ້ມູນທ້ອງຖິ່ນ</li>
+                <li>ການແລກປ່ຽນວັດທະນະທຳ - ການມີປະຕິສຳພັນສັ້ນໆກັບຄົນທ້ອງຖິ່ນ ແລະ ພະນັກງານບໍລິການ</li>
+                <li>ເຫດການສຸກເສີນໃນການເດີນທາງ - ການສື່ສານໄວໃນສະຖານະການຮີບດ່ວນ</li>
+                <li>ການຝຶກຝົນພາສາ - ການຝຶກຝົນສັ້ນໆກັບຄົນເວົ້າພາສາແມ່</li>
+            </ul>
+        </div>
+    </div>
+
     <footer>
-        <p>&copy; 2025 Ike Notes. All rights reserved.</p>
+        <p>&copy; 2025 ikeNotes. All rights reserved.</p>
     </footer>
+
+    <script>
+        function showTab(language) {
+            // Hide all content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected content
+            document.getElementById(language + '-content').classList.add('active');
+
+            // Activate selected button
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>

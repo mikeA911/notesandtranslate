@@ -16,7 +16,7 @@
  */
 
 // Version increment system - update this timestamp when deploying new versions
-const APP_VERSION = '2025-08-10-994'; // Format: YYYY-MM-DD-XXX
+const APP_VERSION = '2025-08-10-996'; // Format: YYYY-MM-DD-XXX
 const CACHE_NAME = `voice-notes-translator-cache-${APP_VERSION}`;
 console.log(`Service Worker: Version ${APP_VERSION} initializing...`);
 

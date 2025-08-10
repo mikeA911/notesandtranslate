@@ -4,9 +4,13 @@
 */
 /* tslint:disable */
 
+console.log('[DEBUG] TOP OF FILE: index.tsx is being parsed!');
+
 import {GoogleGenAI} from '@google/genai';
 import {marked} from 'marked';
 import { i18n } from './src/i18n-vanilla';
+
+console.log('[DEBUG] AFTER IMPORTS: All imports loaded successfully');
 
 // Simple i18n translations - DEPRECATED: Use ./src/i18n-vanilla.ts instead
 const translations = {
@@ -261,7 +265,10 @@ class VoiceNotesApp {
   private aboutIconButton: HTMLButtonElement;
   private appContainer: HTMLDivElement;
   private currentImageIndex: number = 0;
-  private images: string[] = ['ikeJ.png', 'ikeT.png'];
+  private images: string[] = [
+    'https://wehcgfyykmqhcuzjykio.supabase.co/storage/v1/object/public/assets/ikeJournal.png',
+    'https://wehcgfyykmqhcuzjykio.supabase.co/storage/v1/object/public/assets/ikeTranslate.png'
+  ];
   
   // Settings
   private settingsButton: HTMLButtonElement;
@@ -295,19 +302,29 @@ class VoiceNotesApp {
 
   constructor() {
     this.db = new DBHelper();
+    
+    console.log('[DEBUG] Constructor: Initializing DOM elements...');
+    
     // Get all element references first
     this.appContainer = document.querySelector(
       '.app-container',
     ) as HTMLDivElement;
+    console.log('[DEBUG] appContainer:', this.appContainer);
+    
     this.startupScreen = document.getElementById(
       'startupScreen',
     ) as HTMLDivElement;
+    console.log('[DEBUG] startupScreen:', this.startupScreen);
+    
     this.imageContainer = document.getElementById(
       'imageContainer',
     ) as HTMLDivElement;
+    console.log('[DEBUG] imageContainer:', this.imageContainer);
+    
     this.currentImage = document.getElementById(
       'currentImage',
     ) as HTMLImageElement;
+    console.log('[DEBUG] currentImage:', this.currentImage);
     this.aboutOverlay = document.getElementById(
       'aboutOverlay',
     ) as HTMLDivElement;
@@ -407,6 +424,7 @@ class VoiceNotesApp {
       this.speechSynthesis = window.speechSynthesis;
     }
 
+    console.log('[DEBUG] Constructor complete, calling init...');
     this.init();
   }
   
@@ -535,6 +553,15 @@ class VoiceNotesApp {
   private initializeStartupScreen(): void {
     console.log('[DEBUG] Initializing startup screen...');
     
+    // Set initial image
+    if (this.currentImage) {
+      this.currentImage.src = this.images[this.currentImageIndex];
+      console.log(`[DEBUG] Initial image set to: ${this.currentImage.src}`);
+      console.log(`[DEBUG] Image element:`, this.currentImage);
+    } else {
+      console.error('[DEBUG] currentImage element not found!');
+    }
+    
     // Initialize voices in background for speech synthesis
     this.getVoicesAsync().then(voices => {
       this.voices = voices;
@@ -546,16 +573,43 @@ class VoiceNotesApp {
   }
 
   private bindStartupEventListeners(): void {
+    console.log('[DEBUG] Binding startup event listeners...');
+    console.log('[DEBUG] imageContainer:', this.imageContainer);
+    
     // Click handler to navigate to record page (only if no swipe detected)
     let clickTimeout: number | null = null;
-    this.imageContainer.addEventListener('click', () => {
-      // Delay click action to allow swipe detection to complete
+    // Handle both click and tap events
+    const handleTapOrClick = () => {
+      console.log('[DEBUG] Image clicked/tapped!');
       clickTimeout = window.setTimeout(() => {
+        console.log('[DEBUG] Click timeout fired, swipeInProgress:', this.swipeInProgress);
         if (!this.swipeInProgress) {
+          console.log('[DEBUG] Proceeding to app...');
           this.proceedToApp();
         }
-      }, 100);
-    });
+      }, 150);
+    };
+    
+    if (this.imageContainer) {
+      this.imageContainer.addEventListener('click', handleTapOrClick);
+      console.log('[DEBUG] Click listener added to imageContainer');
+      
+      this.imageContainer.addEventListener('touchstart', (e) => {
+        // Clear any existing timeout on new touch
+        if (clickTimeout) {
+          clearTimeout(clickTimeout);
+          clickTimeout = null;
+        }
+      }, { passive: true });
+    } else {
+      console.error('[DEBUG] imageContainer not found!');
+    }
+
+    // Also add click listener directly to the image as backup
+    if (this.currentImage) {
+      this.currentImage.addEventListener('click', handleTapOrClick);
+      console.log('[DEBUG] Click listener also added to currentImage');
+    }
 
     // About back button handler
     this.aboutBackButton.addEventListener('click', () => {
@@ -567,50 +621,39 @@ class VoiceNotesApp {
     let startY = 0;
     let startTime = 0;
 
-    // Touch events for mobile devices
-    this.imageContainer.addEventListener('touchstart', (e) => {
+    // Touch events for mobile devices - use simpler, more reliable approach
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    this.startupScreen.addEventListener('touchstart', (e) => {
       if (clickTimeout) {
         clearTimeout(clickTimeout);
         clickTimeout = null;
       }
       
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      startTime = Date.now();
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
       this.swipeInProgress = false;
     }, { passive: true });
 
-    this.imageContainer.addEventListener('touchmove', (e) => {
-      if (startX === 0) return;
-      
-      const deltaX = e.touches[0].clientX - startX;
-      const deltaY = e.touches[0].clientY - startY;
-      
-      // Detect swipe (either horizontal or vertical movement)
-      if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
-        this.swipeInProgress = true;
-        e.preventDefault(); // Prevent scrolling
-      }
-    }, { passive: false });
+    this.startupScreen.addEventListener('touchend', (e) => {
+      if (touchStartX === 0 || touchStartY === 0) return;
 
-    this.imageContainer.addEventListener('touchend', (e) => {
-      if (startX === 0) return;
-
-      const deltaX = e.changedTouches[0].clientX - startX;
-      const deltaY = e.changedTouches[0].clientY - startY;
-      const timeElapsed = Date.now() - startTime;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
       
-      // Check for valid swipe: minimum distance, not too slow
-      const horizontalDistance = Math.abs(deltaX);
-      const verticalDistance = Math.abs(deltaY);
-      const notTooSlow = timeElapsed < 1000;
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
       
-      if ((horizontalDistance > 40 || verticalDistance > 40) && notTooSlow) {
+      const minSwipeDistance = 50;
+      
+      // Check for valid swipe
+      if (Math.abs(deltaX) > minSwipeDistance || Math.abs(deltaY) > minSwipeDistance) {
         this.swipeInProgress = true;
         e.preventDefault();
         
-        // Determine swipe direction - prioritize the larger movement
-        if (horizontalDistance > verticalDistance) {
+        // Determine primary swipe direction
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
           // Horizontal swipe
           if (deltaX > 0) {
             this.handleSwipeRight();
@@ -625,17 +668,16 @@ class VoiceNotesApp {
             this.handleSwipeUp();
           }
         }
+        
+        // Reset swipe flag after action
+        setTimeout(() => {
+          this.swipeInProgress = false;
+        }, 300);
       }
       
       // Reset values
-      startX = 0;
-      startY = 0;
-      startTime = 0;
-      
-      // Reset swipe flag after a short delay
-      setTimeout(() => {
-        this.swipeInProgress = false;
-      }, 200);
+      touchStartX = 0;
+      touchStartY = 0;
     }, { passive: false });
 
     // Mouse events for desktop (with touch device detection)
@@ -720,14 +762,22 @@ class VoiceNotesApp {
   }
 
   private handleSwipeRight(): void {
-    // Navigate to next image
+    // Toggle between the two images with coin flip animation
     this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
-    this.currentImage.classList.add('slide-left');
+    console.log(`Swipe right: switching to image ${this.currentImageIndex}: ${this.images[this.currentImageIndex]}`);
     
+    this.currentImage.classList.add('coin-flip');
+    
+    // Change image halfway through the flip animation when it's turned away
     setTimeout(() => {
       this.currentImage.src = this.images[this.currentImageIndex];
-      this.currentImage.classList.remove('slide-left');
-    }, 150);
+      console.log(`Image src updated to: ${this.currentImage.src}`);
+    }, 400); // Halfway through the 0.8s animation
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+      this.currentImage.classList.remove('coin-flip');
+    }, 800);
   }
 
   private handleSwipeLeft(): void {
@@ -736,25 +786,35 @@ class VoiceNotesApp {
   }
 
   private handleSwipeUp(): void {
-    // Navigate to previous image
+    // Toggle to previous image with coin flip animation
     this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
-    this.currentImage.classList.add('slide-up');
+    this.currentImage.classList.add('coin-flip');
     
+    // Change image halfway through the flip animation when it's turned away
     setTimeout(() => {
       this.currentImage.src = this.images[this.currentImageIndex];
-      this.currentImage.classList.remove('slide-up');
-    }, 150);
+    }, 400); // Halfway through the 0.8s animation
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+      this.currentImage.classList.remove('coin-flip');
+    }, 800);
   }
 
   private handleSwipeDown(): void {
-    // Navigate to next image
+    // Toggle between the two images with coin flip animation
     this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
-    this.currentImage.classList.add('slide-down');
+    this.currentImage.classList.add('coin-flip');
     
+    // Change image halfway through the flip animation when it's turned away
     setTimeout(() => {
       this.currentImage.src = this.images[this.currentImageIndex];
-      this.currentImage.classList.remove('slide-down');
-    }, 150);
+    }, 400); // Halfway through the 0.8s animation
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+      this.currentImage.classList.remove('coin-flip');
+    }, 800);
   }
 
   private showAboutPage(): void {
@@ -1271,7 +1331,7 @@ class VoiceNotesApp {
   private debugAudioLevels(): void {
     if (!this.analyserNode || !this.waveformDataArray || !this.isRecording) return;
     
-    this.analyserNode.getByteFrequencyData(this.waveformDataArray);
+    this.analyserNode.getByteFrequencyData(this.waveformDataArray as Uint8Array<ArrayBuffer>);
     const average = this.waveformDataArray.reduce((a, b) => a + b, 0) / this.waveformDataArray.length;
     const max = Math.max(...this.waveformDataArray);
     
@@ -1299,7 +1359,7 @@ class VoiceNotesApp {
     this.waveformDrawingId = requestAnimationFrame(() =>
       this.drawLiveWaveform(),
     );
-    this.analyserNode.getByteFrequencyData(this.waveformDataArray);
+    this.analyserNode.getByteFrequencyData(this.waveformDataArray as Uint8Array<ArrayBuffer>);
 
     const ctx = this.liveWaveformCtx;
     const canvas = this.liveWaveformCanvas;
@@ -1524,11 +1584,13 @@ class VoiceNotesApp {
       }
 
       // Try different audio formats, preferring formats that work better
+      // Order by compatibility: webm is most widely supported for recording
       const formats = [
+        { mimeType: 'audio/webm;codecs=opus', ext: 'webm' },
+        { mimeType: 'audio/webm', ext: 'webm' },
+        { mimeType: 'audio/mp4;codecs=aac', ext: 'm4a' },
         { mimeType: 'audio/mpeg', ext: 'mp3' },
         { mimeType: 'audio/wav', ext: 'wav' },
-        { mimeType: 'audio/mp4', ext: 'm4a' },
-        { mimeType: 'audio/webm', ext: 'webm' },
       ];
 
       let formatUsed = null;
@@ -1550,8 +1612,10 @@ class VoiceNotesApp {
       // Fallback to default if no specific format worked
       if (!this.mediaRecorder) {
         this.mediaRecorder = new MediaRecorder(this.stream);
-        formatUsed = { mimeType: 'audio/webm', ext: 'webm' }; // Default assumption
-        console.log('✅ MediaRecorder created with default settings');
+        // Use the actual mimeType from MediaRecorder, fallback to webm if not available
+        const actualMimeType = this.mediaRecorder.mimeType || 'audio/webm';
+        formatUsed = { mimeType: actualMimeType, ext: 'webm' };
+        console.log(`✅ MediaRecorder created with default settings, actual MIME: ${actualMimeType}`);
       }
 
       this.mediaRecorder.ondataavailable = (event) => {
@@ -2274,7 +2338,7 @@ ${polishedNoteMarkdown}`;
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: mimeType });
+      const blob = new Blob([byteArray.buffer.slice(0)], { type: mimeType });
       
       // Create audio element and play
       const audio = new Audio();
@@ -2404,8 +2468,15 @@ ${polishedNoteMarkdown}`;
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const mimeType = this.currentNote.audioMimeType || 'audio/webm';
-      console.log(`🎧 Creating blob with MIME type: ${mimeType}`);
+      let mimeType = this.currentNote.audioMimeType || 'audio/webm';
+      console.log(`🎧 Original MIME type: ${mimeType}`);
+      
+      // Clean up problematic MIME types for better compatibility
+      if (mimeType.includes('codecs=opus') || mimeType.includes('audio/mp4;codecs')) {
+        // Fallback to generic webm for better compatibility
+        mimeType = 'audio/webm';
+        console.log(`🔄 Cleaned MIME type for compatibility: ${mimeType}`);
+      }
       
       const blob = new Blob([byteArray], { type: mimeType });
       console.log(`💾 Blob created, size: ${blob.size} bytes`);
@@ -2416,29 +2487,16 @@ ${polishedNoteMarkdown}`;
       
       console.log('🔊 Volume set to:', this.currentAudio.volume);
 
-      this.currentAudio.addEventListener('loadedmetadata', () => {
-        console.log('✅ Audio metadata loaded, duration:', this.currentAudio!.duration);
-        this.totalTimeDisplay.textContent = this.formatTime(this.currentAudio!.duration);
-      });
-
-      this.currentAudio.addEventListener('timeupdate', () => {
-        const progress = (this.currentAudio!.currentTime / this.currentAudio!.duration) * 100;
-        this.progressFill.style.width = `${progress}%`;
-        this.currentTimeDisplay.textContent = this.formatTime(this.currentAudio!.currentTime);
-      });
-
-      this.currentAudio.addEventListener('ended', () => {
-        console.log('🏁 Audio playback ended');
-        this.resetVoicePlayer();
-        URL.revokeObjectURL(url);
-      });
+      this.setupAudioEventListeners(url);
 
       this.currentAudio.addEventListener('error', (e) => {
         console.error('❌ Error playing audio:', e);
         console.error('Audio error details:', this.currentAudio?.error);
-        this.recordingInfo.textContent = 'Playback error - check console for details';
-        this.resetVoicePlayer();
+        
+        // Try fallback with generic audio MIME type
+        console.log('🔄 Trying fallback with generic audio type...');
         URL.revokeObjectURL(url);
+        this.tryAudioFallback(byteArray);
       });
 
       this.currentAudio.addEventListener('canplay', () => {
@@ -2459,6 +2517,70 @@ ${polishedNoteMarkdown}`;
       console.error('❌ Error creating audio from base64:', error);
       this.recordingInfo.textContent = 'Audio creation error - ' + (error as Error).message;
     }
+  }
+
+  private tryAudioFallback(byteArray: Uint8Array): void {
+    // Try different MIME types as fallbacks
+    const fallbackTypes = ['audio/webm', 'audio/mp4', 'audio/mpeg', 'audio/wav', ''];
+    
+    for (const fallbackType of fallbackTypes) {
+      try {
+        console.log(`🔄 Trying fallback MIME type: ${fallbackType || 'no type'}`);
+        const fallbackBlob = new Blob([byteArray.buffer.slice(0) as ArrayBuffer], { type: fallbackType });
+        const fallbackUrl = URL.createObjectURL(fallbackBlob);
+        const fallbackAudio = new Audio(fallbackUrl);
+        
+        fallbackAudio.addEventListener('canplaythrough', () => {
+          console.log(`✅ Fallback successful with: ${fallbackType || 'no type'}`);
+          this.currentAudio = fallbackAudio;
+          this.currentAudio.volume = this.volumeSlider.valueAsNumber / 100;
+          this.setupAudioEventListeners(fallbackUrl);
+          this.currentAudio.play().catch(error => {
+            console.error('Error playing fallback audio:', error);
+            URL.revokeObjectURL(fallbackUrl);
+          });
+        });
+        
+        fallbackAudio.addEventListener('error', () => {
+          URL.revokeObjectURL(fallbackUrl);
+        });
+        
+        // Try to load the audio
+        fallbackAudio.load();
+        return; // Exit after first attempt
+      } catch (error) {
+        console.log(`❌ Fallback ${fallbackType} failed:`, error);
+      }
+    }
+    
+    // If all fallbacks fail
+    this.recordingInfo.textContent = 'Audio format not supported by browser';
+    this.resetVoicePlayer();
+  }
+
+  private setupAudioEventListeners(url: string): void {
+    if (!this.currentAudio) return;
+    
+    this.currentAudio.addEventListener('loadedmetadata', () => {
+      if (this.currentAudio) {
+        console.log('✅ Audio metadata loaded, duration:', this.currentAudio.duration);
+        this.totalTimeDisplay.textContent = this.formatTime(this.currentAudio.duration);
+      }
+    });
+
+    this.currentAudio.addEventListener('timeupdate', () => {
+      if (this.currentAudio) {
+        const progress = (this.currentAudio.currentTime / this.currentAudio.duration) * 100;
+        this.progressFill.style.width = `${progress}%`;
+        this.currentTimeDisplay.textContent = this.formatTime(this.currentAudio.currentTime);
+      }
+    });
+
+    this.currentAudio.addEventListener('ended', () => {
+      console.log('🏁 Audio playback ended');
+      this.resetVoicePlayer();
+      URL.revokeObjectURL(url);
+    });
   }
 
   private pauseVoicePlayback(): void {
@@ -2513,8 +2635,29 @@ ${polishedNoteMarkdown}`;
   }
 }
 
+console.log('[DEBUG] Script loaded, setting up DOMContentLoaded listener...');
+
 document.addEventListener('DOMContentLoaded', () => {
-  new VoiceNotesApp();
+  console.log('[DEBUG] DOMContentLoaded fired, creating VoiceNotesApp...');
+  try {
+    const app = new VoiceNotesApp();
+    console.log('[DEBUG] VoiceNotesApp created successfully:', app);
+  } catch (error) {
+    console.error('[DEBUG] Error creating VoiceNotesApp:', error);
+  }
 });
+
+// Also try immediate instantiation in case DOM is already loaded
+if (document.readyState === 'loading') {
+  console.log('[DEBUG] DOM is still loading, waiting for DOMContentLoaded...');
+} else {
+  console.log('[DEBUG] DOM already loaded, creating VoiceNotesApp immediately...');
+  try {
+    const app = new VoiceNotesApp();
+    console.log('[DEBUG] VoiceNotesApp created immediately:', app);
+  } catch (error) {
+    console.error('[DEBUG] Error creating VoiceNotesApp immediately:', error);
+  }
+}
 
 export {};

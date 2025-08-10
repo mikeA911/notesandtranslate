@@ -70,6 +70,18 @@ class I18n {
     return this.currentLanguage;
   }
 
+  public getCurrentLanguageData(): TranslationResources {
+    return this.translations[this.currentLanguage] || this.translations['en'];
+  }
+
+  public init(): void {
+    // Initialize and update UI
+    this.updateUI();
+    
+    // Dispatch event to notify that i18n is ready
+    window.dispatchEvent(new CustomEvent('i18nReady'));
+  }
+
   public getSupportedLanguages(): { code: string; name: string; nativeName: string }[] {
     return [
       { code: 'en', name: 'English', nativeName: 'English' },
@@ -115,9 +127,6 @@ class I18n {
     }));
   }
 
-  public init(): void {
-    this.updateUI();
-  }
 }
 
 export const i18n = new I18n();
