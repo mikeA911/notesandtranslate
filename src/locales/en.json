@@ -100,6 +100,73 @@
     "playOriginal": "Play original recording",
     "stopPlayback": "Stop playback"
   },
+  "startup": {
+    "swipeInstructions": "Swipe right for more info • Swipe left for about • Click to record"
+  },
+  "about": {
+    "title": "About",
+    "back": "← Back",
+    "mainTitle": "Professional-Grade Translation That Preserves Meaning",
+    "subtitle": "Stop struggling with robotic translations that miss the point. Get natural, contextually-aware translations powered by advanced AI technology - perfect for important conversations and professional communications.",
+    "sections": {
+      "advancedAI": {
+        "title": "Advanced AI Technology",
+        "features": [
+          "Gemini 2.5 powered - State-of-the-art AI for superior accuracy",
+          "Context understanding - Grasps situation and provides appropriate translations",
+          "Natural output - Translations that sound human, not machine-generated",
+          "Continuous learning - Improves with usage for better results"
+        ]
+      },
+      "quickSessions": {
+        "title": "Quick Translation Sessions",
+        "features": [
+          "3-minute recording limit - Perfect for quick conversations and phrases",
+          "Multi-speaker pickup - Captures both sides of conversations",
+          "Tourist-focused sessions - Ideal for restaurant orders, directions, shopping",
+          "Voice enhancement - Clarifies all voices in the conversation",
+          "Real-time processing - Fast translations for immediate communication"
+        ]
+      },
+      "languageSupport": {
+        "title": "Comprehensive Language Support",
+        "features": [
+          "50+ languages - Cover major world languages and dialects",
+          "Technical vocabulary - Handles business, medical, and specialized terms",
+          "Cultural adaptation - Understands cultural context for appropriate communication",
+          "Real-time processing - Fast, responsive translations when you need them"
+        ]
+      },
+      "smartFeatures": {
+        "title": "Smart Features",
+        "features": [
+          "Text and voice input - Type or speak, your choice",
+          "Photo translation - Translate text in images and signs",
+          "Conversation mode - Back-and-forth dialogue support",
+          "Offline pronunciation - Access phonetic guides without internet"
+        ]
+      },
+      "privacy": {
+        "title": "Privacy & Security",
+        "features": [
+          "No conversation storage - Translations processed but not saved by us",
+          "Secure processing - Advanced encryption for all communications",
+          "GDPR compliant - Meets international privacy standards"
+        ]
+      },
+      "perfectFor": {
+        "title": "Perfect For:",
+        "features": [
+          "Tourist conversations - Restaurant orders, hotel check-ins, shopping assistance",
+          "Quick directions - Getting help with navigation and local information",
+          "Cultural exchanges - Brief interactions with locals and service staff",
+          "Travel emergencies - Fast communication in urgent situations",
+          "Language practice - Short practice sessions with native speakers"
+        ]
+      }
+    },
+    "footer": "© 2025 Voice Notes Translator. All rights reserved."
+  },
   "errors": {
     "transcriptionFailed": "Transcription failed or returned empty.",
     "polishingFailed": "Polishing failed or returned empty.",
@@ -110,5 +177,10 @@
     "errorDuringTranscription": "Error during transcription: {{error}}",
     "errorDuringPolishing": "Error during polishing: {{error}}",
     "errorTranslating": "Error translating to {{language}}: {{error}}"
+  },
+  "languages": {
+    "English": "English",
+    "Khmer": "Khmer",
+    "Lao": "Lao"
   }
 }

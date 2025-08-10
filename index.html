@@ -62,7 +62,7 @@
           <img id="currentImage" src="ikeJ.png" alt="Voice Notes Translator" class="startup-image" />
         </div>
         <div class="swipe-instructions">
-          <p>Swipe right for more info • Swipe left for about • Click to record</p>
+          <p data-i18n="startup.swipeInstructions">Swipe right for more info • Swipe left for about • Click to record</p>
         </div>
       </div>
     </div>
@@ -70,7 +70,7 @@
     <div id="aboutOverlay" class="about-overlay">
       <div class="about-content">
         <div class="about-header">
-          <button id="aboutBackButton" class="back-button">← Back</button>
+          <button id="aboutBackButton" class="back-button" data-i18n="about.back">← Back</button>
         </div>
         <iframe src="about.html" style="width: 100%; height: calc(100% - 60px); border: none; background: transparent;"></iframe>
       </div>
@@ -137,13 +137,13 @@
           <div class="note-header">
             <div id="editorTitle" class="editor-title" contenteditable="true" placeholder="Untitled Note"></div>
             <div class="header-controls">
-                <button class="action-button" id="newButton" title="New Note">
+                <button class="action-button" id="newButton" data-i18n-title="buttons.new">
                     <i class="fas fa-file-plus"></i>
                 </button>
-                <button class="action-button" id="saveButton" title="Save Note">
+                <button class="action-button" id="saveButton" data-i18n-title="buttons.save">
                     <i class="fas fa-save"></i>
                 </button>
-                 <button class="action-button" id="myNotesButton" title="My Notes">
+                 <button class="action-button" id="myNotesButton" data-i18n-title="buttons.myNotes">
                     <i class="fas fa-folder-open"></i>
                 </button>
                 <div class="tab-navigation-container">
@@ -154,10 +154,10 @@
                       <div class="active-tab-indicator"></div>
                     </div>
                 </div>
-                <button id="aboutIconButton" class="action-button" title="About">
+                <button id="aboutIconButton" class="action-button" data-i18n-title="about.title">
                   <img src="ikeT.png" alt="About" style="width: 20px; height: 20px;">
                 </button>
-                <button id="settingsButton" class="settings-button" title="Settings">
+                <button id="settingsButton" class="settings-button" data-i18n-title="buttons.settings">
                   <i class="fas fa-cog"></i>
                 </button>
                 <button class="action-button" id="themeToggleButton" title="Toggle Theme">
@@ -220,7 +220,7 @@
 
           <div id="translationArea" class="translation-area hidden">
             <div id="voicePrompt" class="voice-prompt hidden"></div>
-            <h3>Translate Note</h3>
+            <h3 data-i18n="translation.area">Translate Note</h3>
             <div id="translationControls" class="translation-controls">
                 <!-- Translation buttons will be dynamically inserted here -->
             </div>
@@ -241,11 +241,11 @@
           </div>
 
           <div class="status-indicator">
-            <span id="recordingStatus" class="status-text">Ready to record</span>
+            <span id="recordingStatus" class="status-text" data-i18n="status.readyToRecord">Ready to record</span>
           </div>
 
           <div class="recording-controls">
-            <button id="recordButton" class="record-button" title="Start/Stop Recording">
+            <button id="recordButton" class="record-button" data-i18n-title="buttons.record">
               <div class="record-button-inner">
                 <i class="fas fa-microphone"></i>
               </div>
@@ -254,7 +254,7 @@
                 <circle class="wave wave2" cx="100" cy="100" r="70" />
                 <circle class="wave wave3" cx="100" cy="100" r="100" />
               </svg>
-              <span class="record-text">Record</span>
+              <span class="record-text" data-i18n="buttons.record">Record</span>
             </button>
           </div>
         </div>

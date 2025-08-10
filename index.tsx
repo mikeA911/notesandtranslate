@@ -6,8 +6,9 @@
 
 import {GoogleGenAI} from '@google/genai';
 import {marked} from 'marked';
+import { i18n } from './src/i18n-vanilla';
 
-// Simple i18n translations
+// Simple i18n translations - DEPRECATED: Use ./src/i18n-vanilla.ts instead
 const translations = {
   'en': {
     'settings.title': 'Settings',
@@ -407,13 +408,18 @@ class VoiceNotesApp {
   private async init(): Promise<void> {
       await this.db.init();
       
+      // Initialize i18n system
+      i18n.init();
+      
       // Load saved UI language or default to English
       const savedUILanguage = localStorage.getItem('ui_language') as 'en' | 'lo' | 'km';
       if (savedUILanguage && ['en', 'lo', 'km'].includes(savedUILanguage)) {
         this.currentUILanguage = savedUILanguage;
+        i18n.changeLanguage(savedUILanguage);
       } else {
         // Default to English for new users
         this.currentUILanguage = 'en';
+        i18n.changeLanguage('en');
       }
       
       // Initialize credit system integration after a short delay
@@ -467,7 +473,7 @@ class VoiceNotesApp {
       });
 
     this.createNewNote();
-    this.recordingStatus.textContent = 'Ready to record';
+    this.recordingStatus.textContent = i18n.t('status.readyToRecord');
   }
 
   private getVoicesAsync(): Promise<SpeechSynthesisVoice[]> {
@@ -918,7 +924,7 @@ class VoiceNotesApp {
     const userTitle = prompt('Note title:', this.editorTitle.textContent || defaultTitle);
     if (userTitle === null) {
       // User cancelled
-      this.recordingStatus.textContent = 'Save cancelled';
+      this.recordingStatus.textContent = i18n.t('status.cancelled');
       return;
     }
 
@@ -935,7 +941,7 @@ class VoiceNotesApp {
     try {
         const id = await this.db.saveNote(this.currentNote);
         this.currentNote.id = id;
-        this.recordingStatus.textContent = 'Note saved successfully!';
+        this.recordingStatus.textContent = i18n.t('status.saved');
         
         // Give user time to see the message, then reset to a new note.
         setTimeout(() => {
@@ -1043,7 +1049,7 @@ class VoiceNotesApp {
       this.updateVoicePlayer();
 
       this.closeMyNotes();
-      this.recordingStatus.textContent = 'Note loaded. Recording is disabled.';
+      this.recordingStatus.textContent = i18n.t('status.noteLoaded');
   }
 
   private async deleteNote(id: number, element: HTMLElement) {
@@ -1365,7 +1371,7 @@ class VoiceNotesApp {
         this.audioContext = null;
       }
 
-      this.recordingStatus.textContent = 'Requesting microphone access...';
+      this.recordingStatus.textContent = i18n.t('voice.microphoneAccess');
 
       try {
         // Start with basic audio constraints that worked before
@@ -1451,7 +1457,7 @@ class VoiceNotesApp {
           });
           this.processAudio(audioBlob).catch((err) => {
             console.error('Error processing audio:', err);
-            this.recordingStatus.textContent = 'Error processing recording';
+            this.recordingStatus.textContent = i18n.t('errors.processingError');
           });
         } else {
           this.recordingStatus.textContent =
@@ -1535,7 +1541,7 @@ class VoiceNotesApp {
 
       this.recordButton.classList.remove('recording');
       this.recordButton.setAttribute('title', 'Start Recording');
-      this.recordingStatus.textContent = 'Processing audio...';
+      this.recordingStatus.textContent = i18n.t('status.processing');
     } else {
       if (!this.isRecording) this.stopLiveDisplay();
     }
@@ -1551,7 +1557,7 @@ class VoiceNotesApp {
     try {
       URL.createObjectURL(audioBlob);
 
-      this.recordingStatus.textContent = 'Converting audio...';
+      this.recordingStatus.textContent = i18n.t('status.processing');
 
       const reader = new FileReader();
       const readResult = new Promise<string>((resolve, reject) => {
@@ -1594,7 +1600,7 @@ class VoiceNotesApp {
     mimeType: string,
   ): Promise<void> {
     try {
-      this.recordingStatus.textContent = 'Getting transcription...';
+      this.recordingStatus.textContent = i18n.t('status.transcribing');
 
       const ai = this.getGenAI();
       const recordLanguageCode = SUPPORTED_LANGUAGES[this.recordLanguage];
@@ -1628,7 +1634,7 @@ class VoiceNotesApp {
             const hasCredits = this.creditIntegration.creditManager.hasSufficientCredits(cost);
             
             if (!hasCredits) {
-              this.recordingStatus.textContent = 'Insufficient credits for polishing';
+              this.recordingStatus.textContent = i18n.t('status.insufficientCredits');
               this.creditIntegration.creditUI.showPurchaseModal();
               return;
             }
@@ -1636,7 +1642,7 @@ class VoiceNotesApp {
             // Show cost preview for polishing only
             const confirmed = await this.creditIntegration.creditUI.getCostPreview('polish');
             if (!confirmed) {
-              this.recordingStatus.textContent = 'Polishing cancelled';
+              this.recordingStatus.textContent = i18n.t('status.polishingCancelled');
               return;
             }
           } catch (error) {
@@ -1676,7 +1682,7 @@ class VoiceNotesApp {
         this.rawTranscription.textContent.trim() === '' ||
         this.rawTranscription.classList.contains('placeholder-active')
       ) {
-        this.recordingStatus.textContent = 'No transcription to polish';
+        this.recordingStatus.textContent = i18n.t('errors.noTranscription');
         this.polishedNote.innerHTML =
           '<p><em>No transcription available to polish.</em></p>';
         this.updatePlaceholderState(this.polishedNote);
@@ -1684,7 +1690,7 @@ class VoiceNotesApp {
         return;
       }
 
-      this.recordingStatus.textContent = 'Polishing note...';
+      this.recordingStatus.textContent = i18n.t('status.polishing');
 
       const prompt = `Take this raw transcription and create a polished, well-formatted note.
                     Remove filler words (um, uh, like), repetitions, and false starts.
@@ -1989,7 +1995,7 @@ ${polishedNoteMarkdown}`;
     this.updateTranslationButtonsState();
     this.updateVoicePlayer();
 
-    this.recordingStatus.textContent = 'Ready to record';
+    this.recordingStatus.textContent = i18n.t('status.readyToRecord');
 
     if (this.isRecording) {
       this.mediaRecorder?.stop();
@@ -2137,9 +2143,9 @@ ${polishedNoteMarkdown}`;
       this.playAudioFromBase64(this.currentNote.audioData, this.currentNote.audioMimeType || 'audio/webm');
     } else {
       console.log('⚠️ No original audio data found, cannot play recording');
-      this.recordingStatus.textContent = 'No original recording available to play';
+      this.recordingStatus.textContent = i18n.t('status.noRecording');
       setTimeout(() => {
-        this.recordingStatus.textContent = 'Ready to record';
+        this.recordingStatus.textContent = i18n.t('status.readyToRecord');
       }, 2000);
     }
   }
@@ -2227,7 +2233,7 @@ ${polishedNoteMarkdown}`;
       this.voicePlayerMessage.style.display = 'none';
     } else {
       this.rawVoicePlayButton.disabled = true;
-      this.recordingInfo.textContent = 'No recording available';
+      this.recordingInfo.textContent = i18n.t('player.noRecordingAvailable');
       this.voicePlayerMessage.style.display = 'block';
       this.resetVoicePlayer();
     }
