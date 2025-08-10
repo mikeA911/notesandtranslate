@@ -62,7 +62,7 @@
           <img id="currentImage" src="ikeJ.png" alt="Voice Notes Translator" class="startup-image" />
         </div>
         <div class="swipe-instructions">
-          <p data-i18n="startup.swipeInstructions">Swipe right for more info • Swipe left for about • Click to record</p>
+          <p data-i18n="startup.swipeInstructions">Swipe left/right or up/down to navigate • Swipe left for about • Click to record</p>
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@
         <div class="about-header">
           <button id="aboutBackButton" class="back-button" data-i18n="about.back">← Back</button>
         </div>
-        <iframe src="about.html" style="width: 100%; height: calc(100% - 60px); border: none; background: transparent;"></iframe>
+        <iframe src="about.html" class="about-iframe" title="About Voice Notes Translator"></iframe>
       </div>
     </div>
 
@@ -91,7 +91,8 @@
           <h3 data-i18n="settings.recordingLanguage">Record Language</h3>
           <p data-i18n="settings.recordingLanguageHelp">Select the language you'll be speaking in your recordings:</p>
           <div class="setting-section">
-            <select id="recordLanguageSelect" class="record-language-select">
+            <label for="recordLanguageSelect" class="visually-hidden">Record Language</label>
+            <select id="recordLanguageSelect" class="record-language-select" title="Select the language you'll be speaking in your recordings:">
               <!-- Options will be dynamically inserted here -->
             </select>
           </div>
@@ -132,37 +133,48 @@
 
 
     <div class="app-container initially-hidden">
+      <!-- Top Logo Header -->
+      <div class="top-logo-header">
+        <button id="aboutIconButton" class="ike-logo-button" data-i18n-title="about.title">
+          <img src="ikeT.png" alt="ikeTranslate" class="ike-logo">
+        </button>
+      </div>
+      
       <div class="main-content">
         <div class="note-area">
-          <div class="note-header">
-            <div id="editorTitle" class="editor-title" contenteditable="true" placeholder="Untitled Note"></div>
-            <div class="header-controls">
-                <button class="action-button" id="newButton" data-i18n-title="buttons.new">
+          <!-- First Header: Title and Action Buttons -->
+          <div class="note-header primary-header">
+            <div class="primary-header-left">
+              <div id="editorTitle" class="editor-title" contenteditable="true" placeholder="Untitled Note"></div>
+            </div>
+            <div class="primary-header-controls">
+                <button class="action-button" id="newButton" data-i18n-title="buttons.new" title="New Note">
                     <i class="fas fa-file-plus"></i>
                 </button>
-                <button class="action-button" id="saveButton" data-i18n-title="buttons.save">
+                <button class="action-button" id="saveButton" data-i18n-title="buttons.save" title="S">
                     <i class="fas fa-save"></i>
                 </button>
-                 <button class="action-button" id="myNotesButton" data-i18n-title="buttons.myNotes">
+                 <button class="action-button" id="myNotesButton" data-i18n-title="buttons.myNotes" title="My Notes">
                     <i class="fas fa-folder-open"></i>
                 </button>
-                <div class="tab-navigation-container">
-                    <div class="tab-navigation">
-                      <button class="tab-button active" data-tab="note">Polished</button>
-                      <button class="tab-button" data-tab="raw">Raw</button>
-                      <button class="tab-button" data-tab="voice">Raw Voice</button>
-                      <div class="active-tab-indicator"></div>
-                    </div>
-                </div>
-                <button id="aboutIconButton" class="action-button" data-i18n-title="about.title">
-                  <img src="ikeT.png" alt="About" style="width: 20px; height: 20px;">
-                </button>
-                <button id="settingsButton" class="settings-button" data-i18n-title="buttons.settings">
+                <button id="settingsButton" class="action-button" data-i18n-title="buttons.settings" title="Settings">
                   <i class="fas fa-cog"></i>
                 </button>
                 <button class="action-button" id="themeToggleButton" title="Toggle Theme">
                   <i class="fas fa-sun"></i>
                 </button>
+            </div>
+          </div>
+          
+          <!-- Second Header: Tab Navigation -->
+          <div class="note-header secondary-header">
+            <div class="tab-navigation-container">
+                <div class="tab-navigation">
+                  <button class="tab-button active" data-tab="note">Polished</button>
+                  <button class="tab-button" data-tab="raw">Raw</button>
+                  <button class="tab-button" data-tab="voice">Raw Voice</button>
+                  <div class="active-tab-indicator"></div>
+                </div>
             </div>
           </div>
 
@@ -195,7 +207,7 @@
                   </div>
                 </div>
                 <div class="voice-player-controls">
-                  <button id="rawVoicePlayButton" class="voice-play-button" disabled>
+                  <button id="rawVoicePlayButton" class="voice-play-button" disabled title="Play">
                     <i class="fas fa-play"></i>
                   </button>
                   <div class="voice-player-progress">
@@ -208,7 +220,8 @@
                   </div>
                   <div class="volume-control">
                     <i class="fas fa-volume-up"></i>
-                    <input type="range" id="volumeSlider" min="0" max="100" value="100" class="volume-slider">
+                    <label for="volumeSlider" class="visually-hidden">Volume</label>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="100" class="volume-slider" title="Adjust volume">
                   </div>
                 </div>
                 <div class="voice-player-message">

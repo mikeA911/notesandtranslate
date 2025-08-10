@@ -244,6 +244,7 @@ class VoiceNotesApp {
   private rawVoicePlayer: HTMLDivElement;
   private rawVoicePlayButton: HTMLButtonElement;
   private recordingInfo: HTMLSpanElement;
+  private progressBar: HTMLDivElement;
   private progressFill: HTMLDivElement;
   private currentTimeDisplay: HTMLSpanElement;
   private totalTimeDisplay: HTMLSpanElement;
@@ -288,6 +289,9 @@ class VoiceNotesApp {
   // UI Language support
   private currentUILanguage: 'en' | 'lo' | 'km' = 'en';
   private uiLanguageSelect: HTMLSelectElement | null = null;
+  
+  // Swipe handling
+  private swipeInProgress: boolean = false;
 
   constructor() {
     this.db = new DBHelper();
@@ -369,6 +373,7 @@ class VoiceNotesApp {
     this.rawVoicePlayer = document.getElementById('rawVoicePlayer') as HTMLDivElement;
     this.rawVoicePlayButton = document.getElementById('rawVoicePlayButton') as HTMLButtonElement;
     this.recordingInfo = document.getElementById('recordingInfo') as HTMLSpanElement;
+    this.progressBar = document.querySelector('.progress-bar') as HTMLDivElement;
     this.progressFill = document.getElementById('progressFill') as HTMLDivElement;
     this.currentTimeDisplay = document.getElementById('currentTime') as HTMLSpanElement;
     this.totalTimeDisplay = document.getElementById('totalTime') as HTMLSpanElement;
@@ -541,9 +546,15 @@ class VoiceNotesApp {
   }
 
   private bindStartupEventListeners(): void {
-    // Click handler to navigate to record page
+    // Click handler to navigate to record page (only if no swipe detected)
+    let clickTimeout: number | null = null;
     this.imageContainer.addEventListener('click', () => {
-      this.proceedToApp();
+      // Delay click action to allow swipe detection to complete
+      clickTimeout = window.setTimeout(() => {
+        if (!this.swipeInProgress) {
+          this.proceedToApp();
+        }
+      }, 100);
     });
 
     // About back button handler
@@ -551,57 +562,23 @@ class VoiceNotesApp {
       this.hideAboutPage();
     });
 
-    // Touch/swipe handling for mobile and desktop
+    // Touch/swipe handling
     let startX = 0;
     let startY = 0;
-    let isSwipeDetected = false;
+    let startTime = 0;
 
-    // Mouse events for desktop
-    this.imageContainer.addEventListener('mousedown', (e) => {
-      startX = e.clientX;
-      startY = e.clientY;
-      isSwipeDetected = false;
-    });
-
-    this.imageContainer.addEventListener('mousemove', (e) => {
-      if (startX === 0) return;
-      
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
-      
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-        isSwipeDetected = true;
-      }
-    });
-
-    this.imageContainer.addEventListener('mouseup', (e) => {
-      if (!isSwipeDetected || startX === 0) {
-        startX = 0;
-        startY = 0;
-        return;
-      }
-
-      const deltaX = e.clientX - startX;
-      
-      if (Math.abs(deltaX) > 50) {
-        if (deltaX > 0) {
-          this.handleSwipeRight();
-        } else {
-          this.handleSwipeLeft();
-        }
-      }
-      
-      startX = 0;
-      startY = 0;
-      isSwipeDetected = false;
-    });
-
-    // Touch events for mobile
+    // Touch events for mobile devices
     this.imageContainer.addEventListener('touchstart', (e) => {
+      if (clickTimeout) {
+        clearTimeout(clickTimeout);
+        clickTimeout = null;
+      }
+      
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
-      isSwipeDetected = false;
-    });
+      startTime = Date.now();
+      this.swipeInProgress = false;
+    }, { passive: true });
 
     this.imageContainer.addEventListener('touchmove', (e) => {
       if (startX === 0) return;
@@ -609,33 +586,137 @@ class VoiceNotesApp {
       const deltaX = e.touches[0].clientX - startX;
       const deltaY = e.touches[0].clientY - startY;
       
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-        isSwipeDetected = true;
+      // Detect swipe (either horizontal or vertical movement)
+      if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
+        this.swipeInProgress = true;
         e.preventDefault(); // Prevent scrolling
       }
-    });
+    }, { passive: false });
 
     this.imageContainer.addEventListener('touchend', (e) => {
-      if (!isSwipeDetected || startX === 0) {
-        startX = 0;
-        startY = 0;
-        return;
-      }
+      if (startX === 0) return;
 
       const deltaX = e.changedTouches[0].clientX - startX;
+      const deltaY = e.changedTouches[0].clientY - startY;
+      const timeElapsed = Date.now() - startTime;
       
-      if (Math.abs(deltaX) > 50) {
-        if (deltaX > 0) {
-          this.handleSwipeRight();
+      // Check for valid swipe: minimum distance, not too slow
+      const horizontalDistance = Math.abs(deltaX);
+      const verticalDistance = Math.abs(deltaY);
+      const notTooSlow = timeElapsed < 1000;
+      
+      if ((horizontalDistance > 40 || verticalDistance > 40) && notTooSlow) {
+        this.swipeInProgress = true;
+        e.preventDefault();
+        
+        // Determine swipe direction - prioritize the larger movement
+        if (horizontalDistance > verticalDistance) {
+          // Horizontal swipe
+          if (deltaX > 0) {
+            this.handleSwipeRight();
+          } else {
+            this.handleSwipeLeft();
+          }
         } else {
-          this.handleSwipeLeft();
+          // Vertical swipe
+          if (deltaY > 0) {
+            this.handleSwipeDown();
+          } else {
+            this.handleSwipeUp();
+          }
         }
       }
       
+      // Reset values
       startX = 0;
       startY = 0;
-      isSwipeDetected = false;
-    });
+      startTime = 0;
+      
+      // Reset swipe flag after a short delay
+      setTimeout(() => {
+        this.swipeInProgress = false;
+      }, 200);
+    }, { passive: false });
+
+    // Mouse events for desktop (with touch device detection)
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (!isTouchDevice) {
+      let mouseDown = false;
+      
+      this.imageContainer.addEventListener('mousedown', (e) => {
+        if (clickTimeout) {
+          clearTimeout(clickTimeout);
+          clickTimeout = null;
+        }
+        
+        startX = e.clientX;
+        startY = e.clientY;
+        startTime = Date.now();
+        mouseDown = true;
+        this.swipeInProgress = false;
+        e.preventDefault();
+      });
+
+      this.imageContainer.addEventListener('mousemove', (e) => {
+        if (!mouseDown || startX === 0) return;
+        
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
+          this.swipeInProgress = true;
+        }
+      });
+
+      this.imageContainer.addEventListener('mouseup', (e) => {
+        if (!mouseDown) return;
+        
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        const timeElapsed = Date.now() - startTime;
+        
+        const horizontalDistance = Math.abs(deltaX);
+        const verticalDistance = Math.abs(deltaY);
+        const notTooSlow = timeElapsed < 1000;
+        
+        if ((horizontalDistance > 40 || verticalDistance > 40) && notTooSlow) {
+          this.swipeInProgress = true;
+          e.preventDefault();
+          
+          if (horizontalDistance > verticalDistance) {
+            if (deltaX > 0) {
+              this.handleSwipeRight();
+            } else {
+              this.handleSwipeLeft();
+            }
+          } else {
+            if (deltaY > 0) {
+              this.handleSwipeDown();
+            } else {
+              this.handleSwipeUp();
+            }
+          }
+        }
+        
+        mouseDown = false;
+        startX = 0;
+        startY = 0;
+        startTime = 0;
+        
+        setTimeout(() => {
+          this.swipeInProgress = false;
+        }, 200);
+      });
+      
+      // Handle mouse leave to reset state
+      this.imageContainer.addEventListener('mouseleave', () => {
+        mouseDown = false;
+        startX = 0;
+        startY = 0;
+        startTime = 0;
+      });
+    }
   }
 
   private handleSwipeRight(): void {
@@ -652,6 +733,28 @@ class VoiceNotesApp {
   private handleSwipeLeft(): void {
     // Show about page
     this.showAboutPage();
+  }
+
+  private handleSwipeUp(): void {
+    // Navigate to previous image
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
+    this.currentImage.classList.add('slide-up');
+    
+    setTimeout(() => {
+      this.currentImage.src = this.images[this.currentImageIndex];
+      this.currentImage.classList.remove('slide-up');
+    }, 150);
+  }
+
+  private handleSwipeDown(): void {
+    // Navigate to next image
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+    this.currentImage.classList.add('slide-down');
+    
+    setTimeout(() => {
+      this.currentImage.src = this.images[this.currentImageIndex];
+      this.currentImage.classList.remove('slide-down');
+    }, 150);
   }
 
   private showAboutPage(): void {
@@ -677,13 +780,17 @@ class VoiceNotesApp {
     this.recordButton.addEventListener('click', () => this.toggleRecording());
     this.newButton.addEventListener('click', () => this.createNewNote());
     this.themeToggleButton.addEventListener('click', () => this.toggleTheme());
-    this.aboutIconButton.addEventListener('click', () => this.showAboutPage());
+    this.aboutIconButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.showAboutPage();
+    });
 
     this.playRecordingButton.addEventListener('click', () => this.handlePlayRecording());
     
     // Raw Voice Player event listeners
     this.rawVoicePlayButton.addEventListener('click', () => this.toggleVoicePlayback());
     this.volumeSlider.addEventListener('input', () => this.updateVolume());
+    this.progressBar.addEventListener('click', (e) => this.handleProgressBarClick(e));
     
     this.settingsButton.addEventListener('click', () => this.openSettings());
     this.settingsSaveButton.addEventListener('click', () => this.saveAndCloseSettings());
@@ -750,6 +857,9 @@ class VoiceNotesApp {
       const target = e.target as HTMLSelectElement;
       this.currentUILanguage = target.value as 'en' | 'lo' | 'km';
       localStorage.setItem('ui_language', this.currentUILanguage);
+      // Use the new i18n system for immediate updates
+      i18n.changeLanguage(this.currentUILanguage);
+      // Keep old system for backward compatibility
       this.updateUILanguage();
     });
 
@@ -772,6 +882,11 @@ class VoiceNotesApp {
     if (label && translations[this.currentUILanguage]['settings.uiLanguage']) {
       label.textContent = translations[this.currentUILanguage]['settings.uiLanguage'];
     }
+
+    // Dispatch language changed event for other components
+    window.dispatchEvent(new CustomEvent('languageChanged', {
+      detail: { language: this.currentUILanguage }
+    }));
   }
 
   private renderRecordLanguageSelect() {
@@ -2227,11 +2342,21 @@ ${polishedNoteMarkdown}`;
 
   // Raw Voice Player Methods
   private updateVoicePlayer(): void {
+    console.log('🔄 Updating voice player...');
+    console.log('📊 Current note has audio:', !!this.currentNote?.audioData);
+    console.log('🎛️ Raw voice play button found:', !!this.rawVoicePlayButton);
+    console.log('📊 Recording info element found:', !!this.recordingInfo);
+    
     if (this.currentNote?.audioData) {
+      console.log('✅ Audio data available, enabling player');
+      console.log('📊 Audio data length:', this.currentNote.audioData.length);
+      console.log('🎧 Audio MIME type:', this.currentNote.audioMimeType);
+      
       this.rawVoicePlayButton.disabled = false;
       this.recordingInfo.textContent = `${this.currentNote.audioMimeType || 'audio'} recording available`;
       this.voicePlayerMessage.style.display = 'none';
     } else {
+      console.log('❌ No audio data, disabling player');
       this.rawVoicePlayButton.disabled = true;
       this.recordingInfo.textContent = i18n.t('player.noRecordingAvailable');
       this.voicePlayerMessage.style.display = 'block';
@@ -2250,30 +2375,49 @@ ${polishedNoteMarkdown}`;
   }
 
   private startVoicePlayback(): void {
-    if (!this.currentNote?.audioData) return;
+    if (!this.currentNote?.audioData) {
+      console.log('❌ No audio data available for playback');
+      return;
+    }
+
+    console.log('🎵 Starting voice playback...');
 
     if (this.currentAudio) {
-      this.currentAudio.play();
+      console.log('🎵 Resuming existing audio');
+      this.currentAudio.play().catch((error) => {
+        console.error('Error resuming audio playback:', error);
+        this.recordingInfo.textContent = 'Playback error - ' + error.message;
+      });
       this.updatePlayButton(true);
       return;
     }
 
     try {
+      console.log('🔄 Creating new audio from base64...');
       // Convert base64 to blob
       const base64Data = this.currentNote.audioData.split(',')[1] || this.currentNote.audioData;
+      console.log(`📊 Base64 data length: ${base64Data.length} characters`);
+      
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: this.currentNote.audioMimeType || 'audio/webm' });
+      const mimeType = this.currentNote.audioMimeType || 'audio/webm';
+      console.log(`🎧 Creating blob with MIME type: ${mimeType}`);
+      
+      const blob = new Blob([byteArray], { type: mimeType });
+      console.log(`💾 Blob created, size: ${blob.size} bytes`);
       
       const url = URL.createObjectURL(blob);
       this.currentAudio = new Audio(url);
       this.currentAudio.volume = this.volumeSlider.valueAsNumber / 100;
+      
+      console.log('🔊 Volume set to:', this.currentAudio.volume);
 
       this.currentAudio.addEventListener('loadedmetadata', () => {
+        console.log('✅ Audio metadata loaded, duration:', this.currentAudio!.duration);
         this.totalTimeDisplay.textContent = this.formatTime(this.currentAudio!.duration);
       });
 
@@ -2284,20 +2428,36 @@ ${polishedNoteMarkdown}`;
       });
 
       this.currentAudio.addEventListener('ended', () => {
+        console.log('🏁 Audio playback ended');
         this.resetVoicePlayer();
         URL.revokeObjectURL(url);
       });
 
-      this.currentAudio.addEventListener('error', () => {
-        console.error('Error playing audio');
+      this.currentAudio.addEventListener('error', (e) => {
+        console.error('❌ Error playing audio:', e);
+        console.error('Audio error details:', this.currentAudio?.error);
+        this.recordingInfo.textContent = 'Playback error - check console for details';
         this.resetVoicePlayer();
         URL.revokeObjectURL(url);
       });
 
-      this.currentAudio.play();
-      this.updatePlayButton(true);
+      this.currentAudio.addEventListener('canplay', () => {
+        console.log('✅ Audio can play - starting playback');
+      });
+
+      console.log('▶️ Starting audio playback...');
+      this.currentAudio.play().then(() => {
+        console.log('✅ Audio playback started successfully');
+        this.updatePlayButton(true);
+      }).catch((error) => {
+        console.error('❌ Error starting playback:', error);
+        this.recordingInfo.textContent = 'Playback failed - ' + error.message;
+        this.resetVoicePlayer();
+        URL.revokeObjectURL(url);
+      });
     } catch (error) {
-      console.error('Error creating audio from base64:', error);
+      console.error('❌ Error creating audio from base64:', error);
+      this.recordingInfo.textContent = 'Audio creation error - ' + (error as Error).message;
     }
   }
 
@@ -2332,6 +2492,18 @@ ${polishedNoteMarkdown}`;
     if (this.currentAudio) {
       this.currentAudio.volume = this.volumeSlider.valueAsNumber / 100;
     }
+  }
+
+  private handleProgressBarClick(event: MouseEvent): void {
+    if (!this.currentAudio || !this.currentAudio.duration) return;
+    
+    const rect = this.progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickPercent = clickX / rect.width;
+    const newTime = clickPercent * this.currentAudio.duration;
+    
+    this.currentAudio.currentTime = newTime;
+    console.log(`🎯 Seeking to: ${this.formatTime(newTime)}`);
   }
 
   private formatTime(seconds: number): string {

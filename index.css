@@ -228,6 +228,14 @@ body {
   animation: slideRight 0.3s ease-out;
 }
 
+.startup-image.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.startup-image.slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
 @keyframes slideLeft {
   0% { transform: translateX(100%); }
   100% { transform: translateX(0); }
@@ -236,6 +244,16 @@ body {
 @keyframes slideRight {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(0); }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
 }
 
 /* About page overlay */
@@ -260,10 +278,10 @@ body {
 }
 
 .about-content {
-  width: 100%;
-  max-width: 800px;
-  height: 100%;
-  max-height: 80vh;
+  width: 75%;
+  max-width: 900px;
+  height: 75vh;
+  max-height: 75vh;
   overflow-y: auto;
   background: var(--color-bg-alt);
   border-radius: 12px;
@@ -271,6 +289,7 @@ body {
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
+  margin: auto; /* Center the modal */
 }
 
 .about-header {
@@ -296,6 +315,14 @@ body {
   transform: translateX(-2px);
 }
 
+.about-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  flex: 1;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .image-container {
@@ -308,8 +335,9 @@ body {
   }
   
   .about-content {
-    padding: 20px;
-    max-height: 90vh;
+    width: 90%;
+    height: 85vh;
+    max-height: 85vh;
   }
 }
 
@@ -321,8 +349,6 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,0.5);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
   z-index: 9000;
   display: flex;
   align-items: center;
@@ -407,8 +433,29 @@ body {
 /* .settings-modal-overlay inherits from .modal-overlay, no need for an empty ruleset */
 .settings-modal-content {
   max-width: 500px;
-  max-height: 80vh;
+  width: 90%;
+  max-height: 85vh;
   overflow-y: auto;
+  background: var(--color-bg-alt);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.settings-modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-modal-body {
+  padding: 20px 24px;
 }
 
 .record-language-select {
@@ -444,9 +491,10 @@ body {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding: 20px 0 0;
+  padding: 16px 24px 20px;
   border-top: 1px solid var(--color-border);
-  margin-top: 20px;
+  background: var(--color-bg);
+  border-radius: 0 0 12px 12px;
 }
 
 .settings-save-button,
@@ -461,23 +509,23 @@ body {
 }
 
 .settings-save-button {
-  background-color: var(--color-primary);
+  background-color: var(--color-accent);
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }
 
 .settings-save-button:hover {
-  background-color: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
+  background-color: var(--color-accent-alt);
+  border-color: var(--color-accent-alt);
 }
 
 .settings-cancel-button {
-  background-color: var(--color-input-bg);
+  background-color: var(--color-surface);
   color: var(--color-text);
 }
 
 .settings-cancel-button:hover {
-  background-color: var(--color-button-secondary-hover);
+  background-color: var(--color-surface-hover);
 }
 
 /* Voice Player Styles */
@@ -843,6 +891,88 @@ body.light-mode .note-header::before {
   z-index: 1;
 }
 
+/* Top Logo Header */
+.top-logo-header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+}
+
+.top-logo-header .ike-logo-button {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.top-logo-header .ike-logo-button:hover {
+  background: var(--color-surface-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.top-logo-header .ike-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: contain;
+  max-width: 32px;
+  max-height: 32px;
+  display: block;
+}
+
+/* Primary Header Styles */
+.primary-header {
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0;
+}
+
+.primary-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0; /* Allows title to truncate if needed */
+  justify-content: center; /* Center the title */
+  margin-left: 80px; /* Add margin to avoid overlap with iket button */
+}
+
+.primary-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Secondary Header Styles */
+.secondary-header {
+  padding: 12px 40px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 12px;
+  background: none; /* Remove background image from secondary header */
+}
+
+.secondary-header::before {
+  display: none; /* Remove overlay from secondary header */
+}
+
 .header-controls {
   display: flex;
   align-items: center;
@@ -1012,6 +1142,7 @@ body.light-mode .active-tab-indicator {
   font-style: italic;
   position: relative;
   cursor: default;
+  -webkit-user-select: text;
   user-select: text;
 }
 
@@ -1285,8 +1416,8 @@ body.light-mode .active-tab-indicator {
 .action-button {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1295,6 +1426,13 @@ body.light-mode .active-tab-indicator {
   font-size: 16px;
   cursor: pointer;
   transition: var(--transition-fast) background-color, var(--transition-fast) color, var(--transition-fast) transform;
+  position: relative;
+  z-index: 1;
+}
+
+.action-button i {
+  font-size: 16px;
+  line-height: 1;
 }
 .action-button:hover {
     color: var(--color-text);
@@ -1655,7 +1793,6 @@ body.light-mode .record-button.recording .record-button-inner { color: white; }
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1887,19 +2024,88 @@ body.light-mode .record-button.recording .record-button-inner { color: white; }
 
 @media (max-width: 768px) {
   .note-area { padding: 20px 0 0; overflow-y: auto; }
-  .note-header { padding: 20px; flex-direction: column; align-items: stretch; gap: 12px; }
-  #editorTitle { padding: 0; font-size: 20px; margin-bottom: 0; margin-right: 0; text-align: left; }
-  .header-controls { justify-content: space-between; width: 100%; flex-wrap: wrap; }
-  .tab-navigation-container { flex-grow: 1; }
-  .tab-navigation { width: 100%; }
-  .tab-button { flex-grow: 1; text-align: center; }
+  
+  /* Top Logo Header Mobile Styles */
+  .top-logo-header {
+    top: 15px;
+    left: 15px;
+  }
+  
+  .top-logo-header .ike-logo-button {
+    width: 44px;
+    height: 44px;
+    padding: 6px;
+    border-radius: 6px;
+  }
+  
+  .top-logo-header .ike-logo {
+    width: 28px;
+    height: 28px;
+    max-width: 28px;
+    max-height: 28px;
+    border-radius: 4px;
+  }
+
+  /* Primary Header Mobile Styles */
+  .primary-header { 
+    padding: 16px 20px; 
+    flex-direction: row; 
+    align-items: center; 
+    gap: 12px; 
+    margin-top: 60px; /* Add space for top logo */
+  }
+  
+  .primary-header-left {
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+    justify-content: center; /* Center the title */
+    margin-left: 60px; /* Smaller margin for mobile */
+  }
+  
+  #editorTitle { 
+    padding: 0; 
+    font-size: 18px; 
+    margin-bottom: 0; 
+    margin-right: 0; 
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .primary-header-controls { 
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  
+  /* Secondary Header Mobile Styles */
+  .secondary-header {
+    padding: 12px 20px;
+  }
+  
+  .tab-navigation-container { 
+    width: 100%;
+  }
+  
+  .tab-navigation { 
+    width: 100%; 
+  }
+  
+  .tab-button { 
+    flex: 1; 
+    text-align: center;
+    font-size: 14px;
+    min-width: 0;
+  }
   .note-content-wrapper { padding: 0 20px; }
   #rawTranscription > .speech-button { top: 8px; right: 0; }
   .translation-area { padding: 16px 20px 20px; }
   .recording-interface.is-live { padding-left: 15px; padding-right: 15px; } /* Keep existing responsive padding */
   #liveWaveformCanvas { max-width: calc(100% - 30px); height: 60px; }
   .live-recording-timer { font-size: 36px; }
-  .action-button { width: 36px; height: 36px; font-size: 14px; }
+  .action-button { width: 40px; height: 40px; font-size: 16px; }
+  .action-button i { font-size: 16px; }
   .record-button { width: 64px; height: 64px; }
   .language-options-grid { grid-template-columns: 1fr; }
   .my-notes-modal-content { width: 95%; height: 85vh; }
