@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "ຕົວແປພາສາບັນທຶກສຽງ",
+    "loading": "ກຳລັງໂຫຼດ..."
+  },
+  "buttons": {
+    "record": "ບັນທຶກ",
+    "stop": "ຢຸດ",
+    "new": "ບັນທຶກໃໝ່",
+    "save": "ບັນທຶກ",
+    "delete": "ລຶບ",
+    "edit": "ແກ້ໄຂ",
+    "cancel": "ຍົກເລີກ",
+    "confirm": "ຢືນຢັນ",
+    "close": "ປິດ",
+    "play": "ຫຼິ້ນ",
+    "pause": "ຢຸດຊົ່ວຄາວ",
+    "settings": "ການຕັ້ງຄ່າ",
+    "myNotes": "ບັນທຶກຂອງຂ້ອຍ",
+    "back": "ກັບຄືນ",
+    "retry": "ລອງໃໝ່",
+    "proceedAnyway": "ດຳເນີນຕໍ່ຢູ່ແລ້ວ"
+  },
+  "status": {
+    "readyToRecord": "ພ້ອມບັນທຶກແລ້ວ",
+    "recording": "ກຳລັງບັນທຶກ...",
+    "processing": "ກຳລັງປະມວນຜົນສຽງ...",
+    "transcribing": "ກຳລັງຮັບການຖອດຂໍ້ຄວາມ...",
+    "polishing": "ກຳລັງປັບປຸງບັນທຶກ...",
+    "translating": "ກຳລັງແປ...",
+    "complete": "ສຳເລັດ",
+    "error": "ຜິດພາດ",
+    "saved": "ບັນທຶກສຳເລັດແລ້ວ!",
+    "cancelled": "ຍົກເລີກການບັນທຶກ",
+    "noteLoaded": "ໂຫຼດບັນທຶກແລ້ວ. ການບັນທຶກຖືກປິດ.",
+    "noRecording": "ບໍ່ມີການບັນທຶກຕົ້ນສະບັບສຳລັບຫຼິ້ນ",
+    "insufficientCredits": "ເຄຣດິດບໍ່ພຽງພໍສຳລັບການປັບປຸງ",
+    "polishingCancelled": "ຍົກເລີກການປັບປຸງ"
+  },
+  "placeholders": {
+    "untitledNote": "ບັນທຶກບໍ່ມີຊື່",
+    "rawTranscription": "ຄຳເວົ້າຂອງທ່ານຈະປາກົດຢູ່ນີ້ຫຼັງຈາກບັນທຶກ...",
+    "polishedNote": "ບັນທຶກທີ່ປັບປຸງດ້ວຍ AI ຈະປາກົດຢູ່ນີ້...",
+    "noteTitle": "ຄິກເພື່ອແກ້ໄຂຊື່ບັນທຶກ"
+  },
+  "translation": {
+    "area": "ເຂດການແປ",
+    "translateTo": "ແປເປັນ {{language}}",
+    "translation": "ການແປ {{language}}",
+    "noNoteToTranslate": "ບໍ່ມີບັນທຶກທີ່ປັບປຸງແລ້ວສຳລັບແປ.",
+    "readAloud": "ອ່ານການແປ {{language}} ດັງໆ"
+  },
+  "settings": {
+    "title": "ການຕັ້ງຄ່າ",
+    "languageSelection": "ການເລືອກພາສາ",
+    "recordingLanguage": "ພາສາບັນທຶກ",
+    "recordingLanguageHelp": "ພາສາສຳລັບການຮັບຮູ້ສຽງ ແລະ ການປັບປຸງ",
+    "translationLanguages": "ພາສາການແປ",
+    "translationLanguagesHelp": "ພາສາທີ່ທ່ານຕ້ອງການແປໄປ",
+    "uiLanguage": "ພາສາສ່ວນຕິດຕໍ່ຜູ້ໃຊ້",
+    "uiLanguageHelp": "ພາສາສຳລັບສ່ວນຕິດຕໍ່ຜູ້ໃຊ້",
+    "save": "ບັນທຶກການຕັ້ງຄ່າ",
+    "cancel": "ຍົກເລີກ"
+  },
+  "notes": {
+    "myNotes": "ບັນທຶກຂອງຂ້ອຍ",
+    "noNotes": "ທ່ານຍັງບໍ່ໄດ້ບັນທຶກຫຍັງເລີຍ.",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບບັນທຶກນີ້? ບໍ່ສາມາດຍົກເລີກໄດ້.",
+    "loadNote": "ໂຫຼດບັນທຶກ",
+    "deleteNote": "ລຶບບັນທຶກ",
+    "noteTitle": "ຊື່ບັນທຶກ:",
+    "recordingDisabled": "ການບັນທຶກຖືກປິດສຳລັບບັນທຶກທີ່ບັນທຶກແລ້ວ",
+    "cannotRecordOverSaved": "ບໍ່ສາມາດບັນທຶກທັບບັນທຶກທີ່ບັນທຶກແລ້ວ. ກະລຸນາສ້າງບັນທຶກໃໝ່ກ່ອນ.",
+    "noPolishedNote": "ບໍ່ມີບັນທຶກທີ່ປັບປຸງແລ້ວ",
+    "errorLoadingNotes": "ຜິດພາດໃນການໂຫຼດບັນທຶກ.",
+    "errorSavingNote": "ຜິດພາດໃນການບັນທຶກ.",
+    "errorDeletingNote": "ຜິດພາດໃນການລຶບບັນທຶກ."
+  },
+  "voice": {
+    "microphoneAccess": "ກຳລັງຂໍອະນຸຍາດໃຊ້ໄມໂຄຣໂຟນ...",
+    "permissionDenied": "ປະຕິເສດການເຂົ້າເຖິງໄມໂຄຣໂຟນ. ກະລຸນາກວດສອບການຕັ້ງຄ່າໂບຣເຊີ ແລະ ໂຫຼດຫນ້ານີ້ໃໝ່.",
+    "noMicrophone": "ບໍ່ພົບໄມໂຄຣໂຟນ. ກະລຸນາເຊື່ອມຕໍ່ໄມໂຄຣໂຟນ.",
+    "microphoneInUse": "ບໍ່ສາມາດເຂົ້າເຖິງໄມໂຄຣໂຟນໄດ້. ອາດຈະຖືກໃຊ້ໂດຍແອັບພລິເຄຊັນອື່ນ.",
+    "noAudioData": "ບໍ່ມີຂໍ້ມູນສຽງຖືກບັນທຶກ. ກະລຸນາລອງໃໝ່.",
+    "preflightCheck": "ກຳລັງກວດສອບຊຸດສຽງທີ່ຈຳເປັນ...",
+    "voicePacksRecommended": "ແນະນຳຊຸດສຽງ",
+    "voiceNotFound": "ບໍ່ພົບສຽງສຳລັບ {{language}}.",
+    "enableVoiceInstructions": "ເພື່ອເປີດໃຊ້ການອ່ານຂໍ້ຄວາມເປັນສຽງສຳລັບການແປ, ກະລຸນາຕິດຕັ້ງສຽງສຳລັບຢ່າງໜ້ອຍໜຶ່ງໃນພາສາທີ່ຮອງຮັບ: {{languages}}.",
+    "windowsInstructions": "ໄປທີ່ Settings > Time & Language > Language & region, ແລະ ເພີ່ມຊຸດພາສາທີ່ຕ້ອງການ.",
+    "macosInstructions": "ໄປທີ່ System Settings > Accessibility > Spoken Content > System Voice, ແລະ ດາວໂຫຼດສຽງທີ່ຕ້ອງການ.",
+    "iosInstructions": "ໄປທີ່ Settings > Accessibility > Spoken Content > Voices, ແລະ ດາວໂຫຼດສຽງສຳລັບພາສາທີ່ຕ້ອງການ.",
+    "androidInstructions": "ໄປທີ່ Settings > Accessibility > Text-to-speech output. ແຕະໄອຄອນເຟືອງສຳລັບເອັນຈິນທີ່ມັກ (ເຊັ່ນ Speech Services by Google), ຈາກນັ້ນເລືອກ Install voice data ແລະ ເລືອກພາສາທີ່ຕ້ອງການ.",
+    "afterInstallation": "ຫຼັງຈາກຕິດຕັ້ງ, ຄິກ 'ລອງໃໝ່'. ທ່ານສາມາດດຳເນີນຕໍ່ໂດຍບໍ່ມີການຫຼິ້ນສຽງໄດ້."
+  },
+  "player": {
+    "noRecordingAvailable": "ບໍ່ມີການບັນທຶກ",
+    "currentTime": "ເວລາປັດຈຸບັນ",
+    "totalTime": "ເວລາທັງໝົດ",
+    "volume": "ລະດັບສຽງ",
+    "playOriginal": "ຫຼິ້ນການບັນທຶກຕົ້ນສະບັບ",
+    "stopPlayback": "ຢຸດການຫຼິ້ນ"
+  },
+  "errors": {
+    "transcriptionFailed": "ການຖອດຂໍ້ຄວາມລົ້ມເຫລວ ຫຼື ກັບມາວ່າງ.",
+    "polishingFailed": "ການປັບປຸງລົ້ມເຫລວ ຫຼື ກັບມາວ່າງ.",
+    "translationFailed": "ການແປເປັນ {{language}} ລົ້ມເຫລວ ຫຼື ກັບມາວ່າງ.",
+    "processingError": "ຜິດພາດໃນການປະມວນຜົນການບັນທຶກ. ກະລຸນາລອງໃໝ່.",
+    "noTranscription": "ບໍ່ມີການຖອດຂໍ້ຄວາມສຳລັບປັບປຸງ",
+    "noTranscriptionAvailable": "ບໍ່ມີການຖອດຂໍ້ຄວາມສຳລັບປັບປຸງ.",
+    "errorDuringTranscription": "ຜິດພາດໃນລະຫວ່າງການຖອດຂໍ້ຄວາມ: {{error}}",
+    "errorDuringPolishing": "ຜິດພາດໃນລະຫວ່າງການປັບປຸງ: {{error}}",
+    "errorTranslating": "ຜິດພາດໃນການແປເປັນ {{language}}: {{error}}"
+  }
+}

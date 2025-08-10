@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "កម្មវិធីបកប្រែកំណត់ត្រាសំឡេង",
+    "loading": "កំពុងដំណើរការ..."
+  },
+  "buttons": {
+    "record": "ថត",
+    "stop": "ឈប់",
+    "new": "កំណត់ត្រាថ្មី",
+    "save": "រក្សាទុក",
+    "delete": "លុប",
+    "edit": "កែសម្រួល",
+    "cancel": "បោះបង់",
+    "confirm": "យល់ព្រម",
+    "close": "បិទ",
+    "play": "ចាក់",
+    "pause": "ផ្អាក",
+    "settings": "ការកំណត់",
+    "myNotes": "កំណត់ត្រារបស់ខ្ញុំ",
+    "back": "ថយក្រោយ",
+    "retry": "ព្យាយាមម្តងទៀត",
+    "proceedAnyway": "បន្តទាំងនេះ"
+  },
+  "status": {
+    "readyToRecord": "រួចរាល់សម្រាប់ថត",
+    "recording": "កំពុងថត...",
+    "processing": "កំពុងដំណើរការសំឡេង...",
+    "transcribing": "កំពុងទទួលការបកប្រែ...",
+    "polishing": "កំពុងកែលម្អកំណត់ត្រា...",
+    "translating": "កំពុងបកប្រែ...",
+    "complete": "បញ្ចប់",
+    "error": "កំហុស",
+    "saved": "រក្សាទុកកំណត់ត្រាបានជោគជ័យ!",
+    "cancelled": "បានបោះបង់ការរក្សាទុក",
+    "noteLoaded": "បានដំណើរការកំណត់ត្រា។ ការថតត្រូវបានបិទ។",
+    "noRecording": "មិនមានការថតដើមសម្រាប់ចាក់",
+    "insufficientCredits": "ពិន្ទុមិនគ្រប់គ្រាន់សម្រាប់កែលម្អ",
+    "polishingCancelled": "បានបោះបង់ការកែលម្អ"
+  },
+  "placeholders": {
+    "untitledNote": "កំណត់ត្រាគ្មានចំណងជើង",
+    "rawTranscription": "ការនិយាយរបស់អ្នកនឹងបង្ហាញនៅទីនេះបន្ទាប់ពីថត...",
+    "polishedNote": "កំណត់ត្រាដែលកែលម្អដោយ AI នឹងបង្ហាញនៅទីនេះ...",
+    "noteTitle": "ចុចដើម្បីកែសម្រួលចំណងជើងកំណត់ត្រា"
+  },
+  "translation": {
+    "area": "តំបន់បកប្រែ",
+    "translateTo": "បកប្រែទៅ {{language}}",
+    "translation": "ការបកប្រែ {{language}}",
+    "noNoteToTranslate": "មិនមានកំណត់ត្រាដែលកែលម្អសម្រាប់បកប្រែ។",
+    "readAloud": "អានការបកប្រែ {{language}} ដោយសំឡេងខ្លាំង"
+  },
+  "settings": {
+    "title": "ការកំណត់",
+    "languageSelection": "ការជ្រើសរើសភាសា",
+    "recordingLanguage": "ភាសាថត",
+    "recordingLanguageHelp": "ភាសាសម្រាប់ការទទួលស្គាល់សំឡេង និង កែលម្អ",
+    "translationLanguages": "ភាសាបកប្រែ",
+    "translationLanguagesHelp": "ភាសាដែលអ្នកចង់បកប្រែទៅ",
+    "uiLanguage": "ភាសាចំនុចប្រទាក់",
+    "uiLanguageHelp": "ភាសាសម្រាប់ចំនុចប្រទាក់អ្នកប្រើ",
+    "save": "រក្សាទុកការកំណត់",
+    "cancel": "បោះបង់"
+  },
+  "notes": {
+    "myNotes": "កំណត់ត្រារបស់ខ្ញុំ",
+    "noNotes": "អ្នកមិនទាន់បានរក្សាទុកកំណត់ត្រាអ្វីទេ។",
+    "deleteConfirm": "តើអ្នកប្រាកដថាចង់លុបកំណត់ត្រានេះទេ? មិនអាចមិនធ្វើវិញបានទេ។",
+    "loadNote": "ដំណើរការកំណត់ត្រា",
+    "deleteNote": "លុបកំណត់ត្រា",
+    "noteTitle": "ចំណងជើងកំណត់ត្រា៖",
+    "recordingDisabled": "ការថតត្រូវបានបិទសម្រាប់កំណត់ត្រាដែលបានរក្សាទុក",
+    "cannotRecordOverSaved": "មិនអាចថតជាន់លើកំណត់ត្រាដែលបានរក្សាទុកបានទេ។ សូមបង្កើតកំណត់ត្រាថ្មីមុន។",
+    "noPolishedNote": "មិនមានកំណត់ត្រាដែលកែលម្អ",
+    "errorLoadingNotes": "កំហុសក្នុងការដំណើរការកំណត់ត្រាដែលបានរក្សាទុក។",
+    "errorSavingNote": "កំហុសក្នុងការរក្សាទុកកំណត់ត្រា។",
+    "errorDeletingNote": "កំហុសក្នុងការលុបកំណត់ត្រា។"
+  },
+  "voice": {
+    "microphoneAccess": "កំពុងស្នើសុំការអនុញ្ញាតមីក្រូហ្វូន...",
+    "permissionDenied": "បានបដិសេធការអនុញ្ញាតមីក្រូហ្វូន។ សូមពិនិត្យការកំណត់ប្រអប់ និង ផ្ទុកទំព័រនេះឡើងវិញ។",
+    "noMicrophone": "រកមិនឃើញមីក្រូហ្វូន។ សូមតភ្ជាប់មីក្រូហ្វូន។",
+    "microphoneInUse": "មិនអាចចូលប្រើមីក្រូហ្វូនបានទេ។ វាអាចត្រូវបានប្រើដោយកម្មវិធីផ្សេង។",
+    "noAudioData": "មិនបានថតទិន្នន័យសំឡេង។ សូមព្យាយាមម្តងទៀត។",
+    "preflightCheck": "កំពុងពិនិត្យសំណុំសំឡេងដែលត្រូវការ...",
+    "voicePacksRecommended": "បានផ្តល់អនុសាសន៍សំណុំសំឡេង",
+    "voiceNotFound": "រកមិនឃើញសំឡេងសម្រាប់ {{language}}។",
+    "enableVoiceInstructions": "ដើម្បីបើកការប្រើប្រាស់អត្ថបទទៅសំឡេងសម្រាប់ការបកប្រែ សូមដំឡើងសំឡេងសម្រាប់យ៉ាងហោចណាស់មួយនៃភាសាដែលបានគាំទ្រ៖ {{languages}}។",
+    "windowsInstructions": "ទៅ Settings > Time & Language > Language & region ហើយបន្ថែមកញ្ចប់ភាសាដែលចង់បាន។",
+    "macosInstructions": "ទៅ System Settings > Accessibility > Spoken Content > System Voice ហើយទាញយកសំឡេងដែលចង់បាន។",
+    "iosInstructions": "ទៅ Settings > Accessibility > Spoken Content > Voices ហើយទាញយកសំឡេងសម្រាប់ភាសាដែលចង់បាន។",
+    "androidInstructions": "ទៅ Settings > Accessibility > Text-to-speech output។ ចុចរូបតារកង់ហ្វឹកសម្រាប់ម៉ាស៊ីនដែលចូលចិត្ត (ឧ. Speech Services by Google) បន្ទាប់មកជ្រើសរើស Install voice data ហើយជ្រើសរើសភាសាដែលចង់បាន។",
+    "afterInstallation": "បន្ទាប់ពីការដំឡើង ចុច 'ព្យាយាមម្តងទៀត'។ អ្នកក៏អាចបន្តដោយមិនចាក់សំឡេងបានដែរ។"
+  },
+  "player": {
+    "noRecordingAvailable": "មិនមានការថតដែលអាចប្រើបាន",
+    "currentTime": "ពេលវេលាបច្ចុប្បន្ន",
+    "totalTime": "ពេលវេលាសរុប",
+    "volume": "កម្រិតសំឡេង",
+    "playOriginal": "ចាក់ការថតដើម",
+    "stopPlayback": "ឈប់ចាក់"
+  },
+  "errors": {
+    "transcriptionFailed": "ការបកប្រែបានបរាជ័យ ឬ ត្រឡប់មកទទេ។",
+    "polishingFailed": "ការកែលម្អបានបរាជ័យ ឬ ត្រឡប់មកទទេ។",
+    "translationFailed": "ការបកប្រែទៅ {{language}} បានបរាជ័យ ឬ ត្រឡប់មកទទេ។",
+    "processingError": "កំហុសក្នុងការដំណើរការការថត។ សូមព្យាយាមម្តងទៀត។",
+    "noTranscription": "មិនមានការបកប្រែសម្រាប់កែលម្អ",
+    "noTranscriptionAvailable": "មិនមានការបកប្រែសម្រាប់កែលម្អ។",
+    "errorDuringTranscription": "កំហុសកំឡុងពេលបកប្រែ៖ {{error}}",
+    "errorDuringPolishing": "កំហុសកំឡុងពេលកែលម្អ៖ {{error}}",
+    "errorTranslating": "កំហុសក្នុងការបកប្រែទៅ {{language}}៖ {{error}}"
+  }
+}

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Voice Notes & Translator</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- PWA and Mobile App enhancements -->
+    <!-- Theme color for supported browsers -->
+    <!-- Removed unsupported meta[name=theme-color] for Firefox and Opera; fallback is handled by CSS background-color -->
+    <!-- Fallback for Firefox and Opera: set background color for browser chrome -->
+    <style>
+      body {
+        background-color: #121212;
+      }
+    </style>
+    <!-- Fallback for browsers that do not support theme-color -->
+    <link rel="manifest" href="./manifest.json" />
+    <style>
+      /* Fallback for Firefox and Opera: set background color for browser chrome */
+      body {
+        background-color: #121212;
+      }
+    </style>
+    <!-- Removed meta[name=theme-color] for light scheme as it's not supported by Firefox, Opera. -->
+    <!-- Removed meta[name=theme-color] with media query for better cross-browser compatibility -->
+    <meta name="msapplication-TileColor" content="#121212" />
+    <!-- Fallback for browsers that do not support theme-color -->
+    <!-- For Safari on iOS -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- For Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#121212" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Voice Notes" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+
+    <link rel="stylesheet" href="./index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai@0.14.0?cb=1",
+          "marked": "https://esm.sh/marked@12.0.2?cb=1"
+        }
+      }
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="preflightCheck" class="preflight-overlay">
+      <div class="preflight-content">
+        <div class="preflight-spinner"></div>
+        <h2 id="preflightMessage">Checking voice packs...</h2>
+        <div id="preflightInstructions" class="hidden"></div>
+        <div id="voiceDebugList" class="debug-voice-list hidden"></div>
+        <div id="preflightControls" class="preflight-controls hidden">
+            <button id="preflightRetryButton" class="translation-button">Retry</button>
+            <button id="preflightProceedButton" class="translation-button">Proceed Anyway</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsModal" class="settings-modal-overlay hidden">
+      <div class="settings-modal-content">
+        <div class="settings-modal-header">
+          <h2 data-i18n="settings.title">Settings</h2>
+        </div>
+        <div class="settings-modal-body">
+          <h3 data-i18n="settings.uiLanguage">Interface Language</h3>
+          <p data-i18n="settings.uiLanguageHelp">Language for the user interface</p>
+          <div class="setting-section">
+            <div id="uiLanguageSelector"></div>
+          </div>
+
+          <h3 data-i18n="settings.recordingLanguage">Record Language</h3>
+          <p data-i18n="settings.recordingLanguageHelp">Select the language you'll be speaking in your recordings:</p>
+          <div class="setting-section">
+            <select id="recordLanguageSelect" class="record-language-select">
+              <!-- Options will be dynamically inserted here -->
+            </select>
+          </div>
+          
+          <h3 data-i18n="settings.translationLanguages">Translation Languages</h3>
+          <p data-i18n="settings.translationLanguagesHelp">Select which languages to show as translation options.</p>
+          <div id="settingsLanguageList" class="language-options-grid">
+            <!-- Checkboxes will be dynamically inserted here -->
+          </div>
+        </div>
+        <div class="settings-modal-footer">
+          <button id="settingsCancelButton" class="settings-cancel-button" data-i18n="buttons.cancel">Cancel</button>
+          <button id="settingsSaveButton" class="settings-save-button" data-i18n="settings.save">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="myNotesModal" class="my-notes-modal-overlay hidden">
+        <div class="my-notes-modal-content">
+            <div class="my-notes-modal-header">
+                <h2>My Notes</h2>
+            </div>
+            <div class="my-notes-modal-body">
+                <div class="stats-container">
+                    <h3>Statistics</h3>
+                    <p>Total Translations: <span id="translationCount">0</span></p>
+                </div>
+                <div id="myNotesList" class="my-notes-list">
+                    <!-- Saved notes will be dynamically inserted here -->
+                    <div class="no-notes-message">You haven't saved any notes yet.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button id="myNotesBackButton" class="button-primary">Back</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="app-container initially-hidden">
+      <div class="main-content">
+        <div class="note-area">
+          <div class="note-header">
+            <div id="editorTitle" class="editor-title" contenteditable="true" placeholder="Untitled Note"></div>
+            <div class="header-controls">
+                <button class="action-button" id="newButton" title="New Note">
+                    <i class="fas fa-file-plus"></i>
+                </button>
+                <button class="action-button" id="saveButton" title="Save Note">
+                    <i class="fas fa-save"></i>
+                </button>
+                 <button class="action-button" id="myNotesButton" title="My Notes">
+                    <i class="fas fa-folder-open"></i>
+                </button>
+                <div class="tab-navigation-container">
+                    <div class="tab-navigation">
+                      <button class="tab-button active" data-tab="note">Polished</button>
+                      <button class="tab-button" data-tab="raw">Raw</button>
+                      <button class="tab-button" data-tab="voice">Raw Voice</button>
+                      <div class="active-tab-indicator"></div>
+                    </div>
+                </div>
+                <button id="settingsButton" class="settings-button" title="Settings">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <button class="action-button" id="themeToggleButton" title="Toggle Theme">
+                  <i class="fas fa-sun"></i>
+                </button>
+            </div>
+          </div>
+
+          <div class="note-content-wrapper">
+            <div
+              id="polishedNote"
+              class="note-content active"
+              contenteditable="true"
+              placeholder="Your polished notes will appear here..."
+            ></div>
+            <div
+              id="rawTranscription"
+              class="note-content read-only"
+              contenteditable="false"
+              placeholder="Raw transcription will appear here..."
+            >
+             <button id="playRecordingButton" class="speech-button hidden" title="Play original recording">
+                <i class="fas fa-play"></i>
+              </button>
+            </div>
+            <div
+              id="rawVoicePlayer"
+              class="note-content voice-player"
+            >
+              <div class="voice-player-content">
+                <div class="voice-player-header">
+                  <h3>Original Recording</h3>
+                  <div class="recording-info">
+                    <span id="recordingInfo">No recording available</span>
+                  </div>
+                </div>
+                <div class="voice-player-controls">
+                  <button id="rawVoicePlayButton" class="voice-play-button" disabled>
+                    <i class="fas fa-play"></i>
+                  </button>
+                  <div class="voice-player-progress">
+                    <div class="progress-bar">
+                      <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div class="time-display">
+                      <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                    </div>
+                  </div>
+                  <div class="volume-control">
+                    <i class="fas fa-volume-up"></i>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="100" class="volume-slider">
+                  </div>
+                </div>
+                <div class="voice-player-message">
+                  <p>Record some audio to see the original recording playback here.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="translationArea" class="translation-area hidden">
+            <div id="voicePrompt" class="voice-prompt hidden"></div>
+            <h3>Translate Note</h3>
+            <div id="translationControls" class="translation-controls">
+                <!-- Translation buttons will be dynamically inserted here -->
+            </div>
+            <div id="translationResults" class="translation-results-container">
+                <!-- Translation cards will be dynamically inserted here -->
+            </div>
+          </div>
+
+        </div>
+
+        <div class="recording-interface">
+          <div id="liveRecordingTitle" class="live-recording-title">
+            Recording
+          </div>
+          <canvas id="liveWaveformCanvas"></canvas>
+          <div id="liveRecordingTimerDisplay" class="live-recording-timer">
+            00:00.00
+          </div>
+
+          <div class="status-indicator">
+            <span id="recordingStatus" class="status-text">Ready to record</span>
+          </div>
+
+          <div class="recording-controls">
+            <button id="recordButton" class="record-button" title="Start/Stop Recording">
+              <div class="record-button-inner">
+                <i class="fas fa-microphone"></i>
+              </div>
+              <svg class="record-waves" viewBox="0 0 200 200">
+                <circle class="wave wave1" cx="100" cy="100" r="40" />
+                <circle class="wave wave2" cx="100" cy="100" r="70" />
+                <circle class="wave wave3" cx="100" cy="100" r="100" />
+              </svg>
+              <span class="record-text">Record</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="micStatus" class="debug-panel"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const tabNav = document.querySelector(".tab-navigation");
+        const tabButtons = tabNav.querySelectorAll(".tab-button");
+        const activeTabIndicator = tabNav.querySelector(".active-tab-indicator");
+        const noteContents = document.querySelectorAll(".note-content");
+
+        function setActiveTab(activeButton, skipAnimation = false) {
+          if (!activeButton || !activeTabIndicator) return;
+
+          tabButtons.forEach((btn) => btn.classList.remove("active"));
+          activeButton.classList.add("active");
+
+          const tabName = activeButton.getAttribute("data-tab");
+          noteContents.forEach((content) => {
+            if (content.id !== 'translationOutput') { // This logic seems incorrect now, but we will leave it
+              content.classList.remove("active");
+            }
+          });
+
+          if (tabName === "raw") {
+            document.getElementById("rawTranscription").classList.add("active");
+          } else if (tabName === "voice") {
+            document.getElementById("rawVoicePlayer").classList.add("active");
+          } else {
+            document.getElementById("polishedNote").classList.add("active");
+          }
+
+          const originalTransition = activeTabIndicator.style.transition;
+          if (skipAnimation) {
+            activeTabIndicator.style.transition = "none";
+          } else {
+            activeTabIndicator.style.transition = "";
+          }
+
+          activeTabIndicator.style.left = `${activeButton.offsetLeft}px`;
+          activeTabIndicator.style.width = `${activeButton.offsetWidth}px`;
+
+          if (skipAnimation) {
+            activeTabIndicator.offsetHeight;
+            activeTabIndicator.style.transition = originalTransition;
+          }
+        }
+
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            setActiveTab(e.currentTarget);
+          });
+        });
+
+        const initiallyActiveButton = tabNav.querySelector(".tab-button.active");
+        if (initiallyActiveButton) {
+          requestAnimationFrame(() => {
+            setActiveTab(initiallyActiveButton, true);
+          });
+        }
+
+        window.addEventListener("resize", () => {
+          requestAnimationFrame(() => {
+            const currentActiveButton = tabNav.querySelector(".tab-button.active");
+            if (currentActiveButton) {
+              setActiveTab(currentActiveButton, true);
+            }
+          });
+        });
+      });
+    </script>
+    <script>
+      // Register the service worker for PWA functionality
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').then(registration => {
+            console.log('Service Worker registered successfully with scope: ', registration.scope);
+          }).catch(registrationError => {
+            console.log('Service Worker registration failed: ', registrationError);
+          });
+        });
+      }
+    </script>
+    
+    <!-- Credit System Scripts -->
+    <script type="module">
+      // Import and initialize credit system
+      import { CreditManager } from './js/creditManager.js';
+      import { CreditUI } from './js/creditUI.js';
+      import { CreditIntegration } from './js/creditIntegration.js';
+      
+      // Initialize credit system when DOM is loaded
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          console.log('Initializing credit system...');
+          
+          // Create credit system instances
+          window.creditManager = new CreditManager();
+          window.creditUI = new CreditUI(window.creditManager);
+          window.creditIntegration = new CreditIntegration(window.creditManager, window.creditUI);
+          
+          // Initialize the credit system
+          await window.creditIntegration.initialize();
+          
+          // Add demo credits for testing (remove in production)
+          const currentBalance = window.creditManager.getBalance();
+          if (currentBalance < 500) {
+            console.log('Adding demo credits for testing...');
+            await window.creditIntegration.addDemoCredits(1000);
+          }
+          
+          console.log('Credit system initialized successfully');
+        } catch (error) {
+          console.error('Failed to initialize credit system:', error);
+        }
+      });
+    </script>
+    
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
