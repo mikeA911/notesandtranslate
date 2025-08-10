@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-const CACHE_NAME = 'voice-notes-translator-cache-v3'; // Increment cache version
+// Version increment system - update this timestamp when deploying new versions
+const APP_VERSION = '2025-08-10-994'; // Format: YYYY-MM-DD-XXX
+const CACHE_NAME = `voice-notes-translator-cache-${APP_VERSION}`;
+console.log(`Service Worker: Version ${APP_VERSION} initializing...`);
 
 // Add all critical app shell files here.
 const urlsToCache = [
@@ -30,11 +33,18 @@ const urlsToCache = [
 
 // Install the service worker and cache the app shell.
 self.addEventListener('install', event => {
+  console.log(`Service Worker: Installing version ${APP_VERSION}`);
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Service Worker: Caching app shell');
         return cache.addAll(urlsToCache);
+      })
+      .then(() => {
+        // Force the waiting service worker to become the active service worker
+        console.log('Service Worker: Skip waiting to activate immediately');
+        return self.skipWaiting();
       })
   );
 });
@@ -73,17 +83,59 @@ self.addEventListener('fetch', event => {
 
 // Clean up old caches on activation to ensure the user gets the latest version.
 self.addEventListener('activate', event => {
+  console.log(`Service Worker: Activating version ${APP_VERSION}`);
+  
   const cacheWhitelist = [CACHE_NAME];
+  
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Service Worker: Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Clear old caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheWhitelist.indexOf(cacheName) === -1) {
+              console.log('Service Worker: Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Take immediate control of all clients
+      self.clients.claim().then(() => {
+        console.log('Service Worker: Claimed all clients');
+        // Notify all clients about the update
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'SW_UPDATED',
+              version: APP_VERSION
+            });
+          });
+        });
+      })
+    ])
   );
+});
+
+// Handle messages from the main thread
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    console.log('Service Worker: Received CLEAR_CACHE request');
+    event.waitUntil(
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            console.log('Service Worker: Clearing cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+        );
+      }).then(() => {
+        // Notify the client that cache is cleared
+        event.ports[0].postMessage({ success: true });
+      }).catch(error => {
+        console.error('Service Worker: Error clearing cache:', error);
+        event.ports[0].postMessage({ success: false, error: error.message });
+      })
+    );
+  }
 });

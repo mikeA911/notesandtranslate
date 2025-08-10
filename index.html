@@ -349,10 +349,100 @@
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js').then(registration => {
             console.log('Service Worker registered successfully with scope: ', registration.scope);
+            
+            // Check for updates periodically
+            setInterval(() => {
+              registration.update();
+            }, 60000); // Check every minute
+            
+            // Handle service worker updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              console.log('Service Worker: New version found, installing...');
+              
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed') {
+                  if (navigator.serviceWorker.controller) {
+                    // A new service worker is available
+                    console.log('Service Worker: New version available, will refresh page');
+                    showUpdateNotification();
+                  } else {
+                    // First time install
+                    console.log('Service Worker: First time installation complete');
+                  }
+                }
+              });
+            });
           }).catch(registrationError => {
             console.log('Service Worker registration failed: ', registrationError);
           });
+          
+          // Listen for messages from service worker
+          navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'SW_UPDATED') {
+              console.log('Service Worker: Updated to version', event.data.version);
+              // Force reload to get the latest version
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            }
+          });
         });
+        
+        // Function to show update notification
+        function showUpdateNotification() {
+          // Create a simple toast notification
+          const toast = document.createElement('div');
+          toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #007AFF;
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10001;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            max-width: 300px;
+          `;
+          toast.innerHTML = `
+            <div style="margin-bottom: 8px;">🚀 App Updated!</div>
+            <div style="font-size: 12px; opacity: 0.9;">Refreshing to load the latest version...</div>
+          `;
+          
+          document.body.appendChild(toast);
+          
+          // Auto refresh after 2 seconds
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+        
+        // Function to manually clear cache (can be called from console)
+        window.clearAppCache = function() {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            const messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = function(event) {
+              if (event.data.success) {
+                console.log('Cache cleared successfully');
+                alert('Cache cleared! The page will reload to get fresh content.');
+                window.location.reload();
+              } else {
+                console.error('Failed to clear cache:', event.data.error);
+                alert('Failed to clear cache. Please try refreshing the page manually.');
+              }
+            };
+            
+            navigator.serviceWorker.controller.postMessage({
+              type: 'CLEAR_CACHE'
+            }, [messageChannel.port2]);
+          } else {
+            console.log('Service Worker not available');
+            alert('Service Worker not available. Try refreshing the page manually.');
+          }
+        };
       }
     </script>
     
