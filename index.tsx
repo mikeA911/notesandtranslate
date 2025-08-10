@@ -250,16 +250,16 @@ class VoiceNotesApp {
   private voicePlayerMessage: HTMLDivElement;
   private currentAudio: HTMLAudioElement | null = null;
   
-  // Pre-flight check elements
-  private preflightCheckOverlay: HTMLDivElement;
-  private preflightSpinner: HTMLDivElement;
-  private preflightMessage: HTMLDivElement;
-  private preflightInstructions: HTMLDivElement;
-  private preflightControls: HTMLDivElement;
-  private preflightRetryButton: HTMLButtonElement;
-  private preflightProceedButton: HTMLButtonElement;
-  private voiceDebugList: HTMLDivElement;
+  // Startup screen elements
+  private startupScreen: HTMLDivElement;
+  private imageContainer: HTMLDivElement;
+  private currentImage: HTMLImageElement;
+  private aboutOverlay: HTMLDivElement;
+  private aboutBackButton: HTMLButtonElement;
+  private aboutIconButton: HTMLButtonElement;
   private appContainer: HTMLDivElement;
+  private currentImageIndex: number = 0;
+  private images: string[] = ['ikeJ.png', 'ikeT.png'];
   
   // Settings
   private settingsButton: HTMLButtonElement;
@@ -294,30 +294,24 @@ class VoiceNotesApp {
     this.appContainer = document.querySelector(
       '.app-container',
     ) as HTMLDivElement;
-    this.preflightCheckOverlay = document.getElementById(
-      'preflightCheck',
+    this.startupScreen = document.getElementById(
+      'startupScreen',
     ) as HTMLDivElement;
-    this.preflightSpinner = this.preflightCheckOverlay.querySelector(
-      '.preflight-spinner',
+    this.imageContainer = document.getElementById(
+      'imageContainer',
     ) as HTMLDivElement;
-    this.preflightMessage = document.getElementById(
-      'preflightMessage',
+    this.currentImage = document.getElementById(
+      'currentImage',
+    ) as HTMLImageElement;
+    this.aboutOverlay = document.getElementById(
+      'aboutOverlay',
     ) as HTMLDivElement;
-    this.preflightInstructions = document.getElementById(
-      'preflightInstructions',
-    ) as HTMLDivElement;
-    this.preflightControls = document.getElementById(
-      'preflightControls',
-    ) as HTMLDivElement;
-    this.preflightRetryButton = document.getElementById(
-      'preflightRetryButton',
+    this.aboutBackButton = document.getElementById(
+      'aboutBackButton',
     ) as HTMLButtonElement;
-    this.preflightProceedButton = document.getElementById(
-      'preflightProceedButton',
+    this.aboutIconButton = document.getElementById(
+      'aboutIconButton',
     ) as HTMLButtonElement;
-    this.voiceDebugList = document.getElementById(
-      'voiceDebugList',
-    ) as HTMLDivElement;
 
     this.recordButton = document.getElementById(
       'recordButton',
@@ -413,10 +407,13 @@ class VoiceNotesApp {
   private async init(): Promise<void> {
       await this.db.init();
       
-      // Load saved UI language
+      // Load saved UI language or default to English
       const savedUILanguage = localStorage.getItem('ui_language') as 'en' | 'lo' | 'km';
       if (savedUILanguage && ['en', 'lo', 'km'].includes(savedUILanguage)) {
         this.currentUILanguage = savedUILanguage;
+      } else {
+        // Default to English for new users
+        this.currentUILanguage = 'en';
       }
       
       // Initialize credit system integration after a short delay
@@ -425,7 +422,7 @@ class VoiceNotesApp {
         this.initializeCreditIntegration();
       }, 1000);
       
-      this.runVoicePreflightCheck();
+      this.initializeStartupScreen();
   }
 
   private initializeCreditIntegration(): void {
@@ -524,88 +521,157 @@ class VoiceNotesApp {
     });
   }
 
-  private async runVoicePreflightCheck(): Promise<void> {
-    console.log('[DEBUG] Running voice pre-flight check...');
-    this.preflightMessage.textContent = 'Checking for required voice packs...';
-    this.preflightSpinner.classList.remove('hidden');
-    this.preflightInstructions.classList.add('hidden');
-    this.preflightControls.classList.add('hidden');
-    this.voiceDebugList.classList.add('hidden');
+  private initializeStartupScreen(): void {
+    console.log('[DEBUG] Initializing startup screen...');
+    
+    // Initialize voices in background for speech synthesis
+    this.getVoicesAsync().then(voices => {
+      this.voices = voices;
+      console.log(`[DEBUG] Found ${voices.length} system voices.`);
+    });
+    
+    // Setup event listeners for startup screen
+    this.bindStartupEventListeners();
+  }
 
-    this.voices = await this.getVoicesAsync();
-    console.log(`[DEBUG] Found ${this.voices.length} system voices.`);
-
-    const voiceListHTML = this.voices.length > 0
-        ? `<strong>Detected Voices:</strong>\n` + this.voices.map(v => `- ${v.name} (${v.lang})`).join('\n')
-        : '<strong>No speech voices detected by the browser.</strong>';
-    this.voiceDebugList.innerHTML = `<pre>${voiceListHTML}</pre>`;
-    this.voiceDebugList.classList.remove('hidden');
-
-    const hasAnyVoice = ALL_LANGUAGES.some(lang => this.hasVoiceFor(SUPPORTED_LANGUAGES[lang]));
-    console.log(`[DEBUG] Has at least one required voice: ${hasAnyVoice}`);
-
-    if (hasAnyVoice) {
+  private bindStartupEventListeners(): void {
+    // Click handler to navigate to record page
+    this.imageContainer.addEventListener('click', () => {
       this.proceedToApp();
-    } else {
-      this.showPreflightPrompt();
-    }
+    });
+
+    // About back button handler
+    this.aboutBackButton.addEventListener('click', () => {
+      this.hideAboutPage();
+    });
+
+    // Touch/swipe handling for mobile and desktop
+    let startX = 0;
+    let startY = 0;
+    let isSwipeDetected = false;
+
+    // Mouse events for desktop
+    this.imageContainer.addEventListener('mousedown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+      isSwipeDetected = false;
+    });
+
+    this.imageContainer.addEventListener('mousemove', (e) => {
+      if (startX === 0) return;
+      
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        isSwipeDetected = true;
+      }
+    });
+
+    this.imageContainer.addEventListener('mouseup', (e) => {
+      if (!isSwipeDetected || startX === 0) {
+        startX = 0;
+        startY = 0;
+        return;
+      }
+
+      const deltaX = e.clientX - startX;
+      
+      if (Math.abs(deltaX) > 50) {
+        if (deltaX > 0) {
+          this.handleSwipeRight();
+        } else {
+          this.handleSwipeLeft();
+        }
+      }
+      
+      startX = 0;
+      startY = 0;
+      isSwipeDetected = false;
+    });
+
+    // Touch events for mobile
+    this.imageContainer.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isSwipeDetected = false;
+    });
+
+    this.imageContainer.addEventListener('touchmove', (e) => {
+      if (startX === 0) return;
+      
+      const deltaX = e.touches[0].clientX - startX;
+      const deltaY = e.touches[0].clientY - startY;
+      
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        isSwipeDetected = true;
+        e.preventDefault(); // Prevent scrolling
+      }
+    });
+
+    this.imageContainer.addEventListener('touchend', (e) => {
+      if (!isSwipeDetected || startX === 0) {
+        startX = 0;
+        startY = 0;
+        return;
+      }
+
+      const deltaX = e.changedTouches[0].clientX - startX;
+      
+      if (Math.abs(deltaX) > 50) {
+        if (deltaX > 0) {
+          this.handleSwipeRight();
+        } else {
+          this.handleSwipeLeft();
+        }
+      }
+      
+      startX = 0;
+      startY = 0;
+      isSwipeDetected = false;
+    });
+  }
+
+  private handleSwipeRight(): void {
+    // Navigate to next image
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+    this.currentImage.classList.add('slide-left');
+    
+    setTimeout(() => {
+      this.currentImage.src = this.images[this.currentImageIndex];
+      this.currentImage.classList.remove('slide-left');
+    }, 150);
+  }
+
+  private handleSwipeLeft(): void {
+    // Show about page
+    this.showAboutPage();
+  }
+
+  private showAboutPage(): void {
+    this.aboutOverlay.classList.add('active');
+  }
+
+  private hideAboutPage(): void {
+    this.aboutOverlay.classList.remove('active');
   }
 
   private proceedToApp(): void {
     console.log('[DEBUG] Proceeding to main application.');
-    this.preflightCheckOverlay.style.opacity = '0';
-    this.preflightCheckOverlay.addEventListener('transitionend', () => {
-      this.preflightCheckOverlay.style.display = 'none';
+    this.startupScreen.style.opacity = '0';
+    this.startupScreen.addEventListener('transitionend', () => {
+      this.startupScreen.style.display = 'none';
     }, { once: true });
 
     this.appContainer.classList.remove('initially-hidden');
     this.initializeApp();
   }
 
-  private showPreflightPrompt(): void {
-    this.preflightSpinner.classList.add('hidden');
-    this.preflightMessage.textContent = 'Voice Packs Recommended';
-
-    const languageList = ALL_LANGUAGES.join(', ');
-
-    const instructions = `
-        <p>To enable text-to-speech for translations, please install a voice for at least one of the supported languages: <strong>${languageList}</strong>.</p>
-        <h4>Windows</h4>
-        <p>Go to <code>Settings > Time & Language > Language & region</code>, and add the desired language pack.</p>
-        <h4>macOS</h4>
-        <p>Go to <code>System Settings > Accessibility > Spoken Content > System Voice</code>, and download the desired voices.</p>
-        <h4>iOS / iPadOS</h4>
-        <p>Go to <code>Settings > Accessibility > Spoken Content > Voices</code>, and download the voices for the desired languages.</p>
-        <h4>Android</h4>
-        <p>Go to <code>Settings > Accessibility > Text-to-speech output</code>. Tap the gear icon for your preferred engine (e.g., Speech Services by Google), then select <code>Install voice data</code> and choose the desired languages.</p>
-        <p>After installation, click 'Retry'. You can also proceed without voice playback.</p>
-    `;
-
-    this.preflightInstructions.innerHTML = instructions;
-    this.preflightInstructions.classList.remove('hidden');
-    this.preflightControls.classList.remove('hidden');
-
-    if (!this.preflightRetryButton.dataset.listener) {
-      this.preflightRetryButton.addEventListener('click', () => {
-        console.log('[DEBUG] "Retry" button clicked.');
-        this.runVoicePreflightCheck();
-      });
-      this.preflightRetryButton.dataset.listener = 'true';
-    }
-
-    if (!this.preflightProceedButton.dataset.listener) {
-      this.preflightProceedButton.addEventListener('click', () => {
-        console.log('[DEBUG] "Proceed Anyway" button clicked.');
-        this.proceedToApp();
-      });
-      this.preflightProceedButton.dataset.listener = 'true';
-    }
-  }
-
   private bindEventListeners(): void {
     this.recordButton.addEventListener('click', () => this.toggleRecording());
     this.newButton.addEventListener('click', () => this.createNewNote());
     this.themeToggleButton.addEventListener('click', () => this.toggleTheme());
+    this.aboutIconButton.addEventListener('click', () => this.showAboutPage());
 
     this.playRecordingButton.addEventListener('click', () => this.handlePlayRecording());
     
@@ -750,8 +816,8 @@ class VoiceNotesApp {
       // Filter to ensure only valid languages are loaded
       this.selectedLanguages = parsed.filter(lang => ALL_LANGUAGES.includes(lang));
     } else {
-      // Default to all languages
-      this.selectedLanguages = [...ALL_LANGUAGES];
+      // Default to only Khmer and Lao for new users
+      this.selectedLanguages = ['Khmer', 'Lao'];
     }
 
     const savedRecordLanguage = localStorage.getItem('recordLanguage');

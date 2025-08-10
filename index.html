@@ -56,16 +56,23 @@
   <link rel="stylesheet" href="/index.css">
 </head>
   <body>
-    <div id="preflightCheck" class="preflight-overlay">
-      <div class="preflight-content">
-        <div class="preflight-spinner"></div>
-        <h2 id="preflightMessage">Checking voice packs...</h2>
-        <div id="preflightInstructions" class="hidden"></div>
-        <div id="voiceDebugList" class="debug-voice-list hidden"></div>
-        <div id="preflightControls" class="preflight-controls hidden">
-            <button id="preflightRetryButton" class="translation-button">Retry</button>
-            <button id="preflightProceedButton" class="translation-button">Proceed Anyway</button>
+    <div id="startupScreen" class="startup-overlay">
+      <div class="startup-content">
+        <div class="image-container" id="imageContainer">
+          <img id="currentImage" src="ikeJ.png" alt="Voice Notes Translator" class="startup-image" />
         </div>
+        <div class="swipe-instructions">
+          <p>Swipe right for more info • Swipe left for about • Click to record</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="aboutOverlay" class="about-overlay">
+      <div class="about-content">
+        <div class="about-header">
+          <button id="aboutBackButton" class="back-button">← Back</button>
+        </div>
+        <iframe src="about.html" style="width: 100%; height: calc(100% - 60px); border: none; background: transparent;"></iframe>
       </div>
     </div>
 
@@ -147,6 +154,9 @@
                       <div class="active-tab-indicator"></div>
                     </div>
                 </div>
+                <button id="aboutIconButton" class="action-button" title="About">
+                  <img src="ikeT.png" alt="About" style="width: 20px; height: 20px;">
+                </button>
                 <button id="settingsButton" class="settings-button" title="Settings">
                   <i class="fas fa-cog"></i>
                 </button>
